@@ -35,3 +35,18 @@ grid2sud gr = \(r,c) -> pos gr (r,c)
 
 printSudoku :: Sudoku -> IO()
 printSudoku = putStrLn . showGrid . sud2grid
+
+
+-- Step 1 - Create list with empty positions in the given sudoku
+--extend :: Sudoku -> (Row,Column,Value) -> Sudoku
+--freeInRow :: Sudoku -> Row -> [Value]
+--freeInColumn :: Sudoku -> Column -> [Value]
+--freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
+--freeAtPos :: Sudoku -> (Row,Column) -> [Value]
+--openPositions :: Sudoku -> [(Row,Column)]
+
+-- Step 2 - Check if sudoku is valid
+--rowValid :: Sudoku -> Row -> Bool
+--colValid :: Sudoku -> Column -> Bool
+--subgridValid :: Sudoku -> (Row,Column) -> Bool
+--consistent :: Sudoku -> Bool
