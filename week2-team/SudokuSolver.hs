@@ -20,29 +20,18 @@ showSubgridRow:: [Value] -> String
 showSubgridRow = unwords . map showDgt
 
 showRow :: [Value] -> String
-showRow sr =
-"| "
-++
-intercalate " | " (map showSubgridRow $ chunksOf 3 sr)
-++
-" |"
+showRow sr = "| " ++ intercalate " | " (map showSubgridRow $ chunksOf 3 sr) ++ " |"
 
 showGrid :: Grid -> String
-showGrid grid =
-"+-------+-------+-------+\n"
-++
-intercalate "\n+-------+-------+-------+\n" rows
-++
-"\n+-------+-------+-------+"
-where rows = map (intercalate "\n") $ chunksOf 3 $ map showRow grid
+showGrid grid = "+-------+-------+-------+\n" ++ intercalate "\n+-------+-------+-------+\n" rows ++ "\n+-------+-------+-------+" where rows = map (intercalate "\n") $ chunksOf 3 $ map showRow grid
 
 sud2grid :: Sudoku -> Grid
-sud2grid s =
-[ [ s (r,c) | c <- [1..9] ] | r <- [1..9] ]
+sud2grid s = [ [ s (r,c) | c <- [1..9] ] | r <- [1..9] ]
 
 grid2sud :: Grid -> Sudoku
-grid2sud gr = \(r,c) -> pos gr (r,c)
-where pos :: [[a]] -> (Row,Column) -> a
+grid2sud gr = \(r,c) -> pos gr (r,c) where
+
+pos :: [[a]] -> (Row,Column) -> a
 pos gr (r,c) = (gr !! (r - 1)) !! (c - 1)
 
 printSudoku :: Sudoku -> IO()
