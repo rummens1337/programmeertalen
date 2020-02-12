@@ -29,10 +29,9 @@ sud2grid :: Sudoku -> Grid
 sud2grid s = [ [ s (r,c) | c <- [1..9] ] | r <- [1..9] ]
 
 grid2sud :: Grid -> Sudoku
-grid2sud gr = \(r,c) -> pos gr (r,c) where
-
-pos :: [[a]] -> (Row,Column) -> a
-pos gr (r,c) = (gr !! (r - 1)) !! (c - 1)
+grid2sud gr = \(r,c) -> pos gr (r,c)
+  where pos :: [[a]] -> (Row,Column) -> a
+        pos gr (r,c) = (gr !! (r - 1)) !! (c - 1)
 
 printSudoku :: Sudoku -> IO()
 printSudoku = putStrLn . showGrid . sud2grid
