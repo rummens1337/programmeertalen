@@ -39,3 +39,4 @@ where pos :: [[a]] -> (Row,Column) -> a
 pos gr (r,c) = (gr !! (r - 1)) !! (c - 1)
 printSudoku :: Sudoku -> IO()
 printSudoku = putStrLn . showGrid . sud2grid
+
