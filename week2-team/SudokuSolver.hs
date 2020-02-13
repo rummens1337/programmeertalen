@@ -67,8 +67,8 @@ printSudoku = putStrLn . showGrid . sud2grid
 
 -- step 1
 
--- extend :: Sudoku -> (Row,Column,Value) -> Sudoku
--- extend s (r,c,v) = doe iets lol
+extend :: Sudoku -> (Row,Column,Value) -> Sudoku -- WERKT NOG NIET
+extend s (r,c,v) = doe iets lol
 
 freeInRow :: Sudoku -> Row -> [Value] -- Werkt.
 freeInRow s r = [1..9] \\ ((sud2grid s) !! (r - 1))
@@ -76,14 +76,14 @@ freeInRow s r = [1..9] \\ ((sud2grid s) !! (r - 1))
 freeInColumn :: Sudoku -> Column -> [Value] -- Werkt.
 freeInColumn s c = [1..9] \\ (foldr(\x acc -> x !! (c - 1) : acc) [] (sud2grid s))
 
-freeInSubgrid :: Sudoku -> (Row,Column) -> [Value] -- ?
+freeInSubgrid :: Sudoku -> (Row,Column) -> [Value] -- WERKT NOG NIET, wss tuple met fst en snd uit
 freeInSubgrid s (r,c) = [1..9] \\ (quot r 3, quot c 3)
 
--- freeAtPos :: Sudoku -> (Row,Column) -> [Value]
--- freeAtPos s (r,c) = doe iets lol
+freeAtPos :: Sudoku -> (Row,Column) -> [Value] -- Werkt wss.
+freeAtPos s (r,c) = [1..9] \\ ((freeInRow s r) ++ (freeInColumn s c) ++ (freeInSubgrid s (r,c)))
 
--- openPositions :: Sudoku -> [(Row,Column)]
--- openPositions s = doe iets lol
+openPositions :: Sudoku -> [(Row,Column)] -- Werkt.
+openPositions s = concat (foldr(\x acc -> zip [x,x..] (openPosColumn s x) : acc) [] [1..9])
 
 -- step 2
 
@@ -96,11 +96,17 @@ colValid s c = (freeInColumn s c) == []
 subgridValid :: Sudoku -> (Row,Column) -> Bool -- Werkt wss.
 subgridValid s (r,c) = (freeInSubgrid s (r,c)) == []
 
-consistent :: Sudoku -> Bool
+consistent :: Sudoku -> Bool -- Werkt theoretisch gezien wel, nog niet kunnen testen (WERKT DUS WSS NOG NIET)
 consistent s = foldr(\x acc -> (rowValid x (sud2grid s)) && (columnValid x (sud2grid s)) && -- Checkt of alle rows en columns valid zijn.
                (foldr(\y acc -> (subgridValid (x,y) s) && acc) True [1..9]) && -- Checkt of alle subgrids valid zijn.
                acc) True [1..9]
 
+-- Extra functies
+
+-- Returns all the indices of the empty spots of a row, and therefore the column numbers.
+
+openPosColumn :: Sudoku -> Row -> [(Value)]
+openPosColumn s r = foldr (\x acc -> x + 1 : acc) [] (elemIndices 0 ((sud2grid s) !! (r - 1)))
 
 -- Step 1 - Create list with empty positions in the given sudoku
 --extend :: Sudoku -> (Row,Column,Value) -> Sudoku
