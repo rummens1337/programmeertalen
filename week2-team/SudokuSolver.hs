@@ -76,8 +76,22 @@ freeInRow s r = [1..9] \\ ((sud2grid s) !! (r - 1))
 freeInColumn :: Sudoku -> Column -> [Value] -- Werkt.
 freeInColumn s c = [1..9] \\ (foldr(\x acc -> x !! (c - 1) : acc) [] (sud2grid s))
 
-freeInSubgrid :: Sudoku -> (Row,Column) -> [Value] -- WERKT NOG NIET, wss tuple met fst en snd uit
-freeInSubgrid s (r,c) = [1..9] \\ (quot r 3, quot c 3)
+-- freeInSubgrid :: Sudoku -> (Row,Column) -> [Value] -- WERKT NOG NIET, wss tuple met fst en snd uit
+-- freeInSubgrid s (r,c) = [1..9] \\ (quot r 3, quot c 3)
+
+-- Shit van internet
+
+valAt' :: Sudoku -> (Row, Value) -> Value
+valAt' (i,j) = do
+               a <- get
+               return (a ! (i,j))
+
+freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
+mapM valAt' [(i' + u, j' + v) | u <- [1..3], v <- [1..3]]
+  where i' = ((i-1) `div` 3) * 3
+        j' = ((j-1) `div` 3) * 3
+
+-- ^^
 
 freeAtPos :: Sudoku -> (Row,Column) -> [Value] -- Werkt wss.
 freeAtPos s (r,c) = [1..9] \\ ((freeInRow s r) ++ (freeInColumn s c) ++ (freeInSubgrid s (r,c)))
