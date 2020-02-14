@@ -134,10 +134,13 @@ consistent s = foldr(\x acc -> (rowValid s x ) && (colValid s x) &&
 --
 -- -- -- -- -- -- -- -- -- -- -- --
 
---printNode :: Node -> IO() printNode = printSudoku . fst -- helper function
---solveAndShow :: Grid -> IO() -- helper functinon
---
---constraints :: Sudoku -> [Constraint]  -- list of constraints?
+--printNode :: Node -> IO() printNode = printSudoku . fst -- helper function.
+
+--solveAndShow :: Grid -> IO() -- helper function.
+
+constraints :: Sudoku -> [Constraint]  -- Nog niet gesorteerd!
+constraints s = customSort (foldr(\x acc -> (fst x, snd x, freeAtPos s (fst x, snd x)) : acc) [] (openPositions s)) -- minst naar meest van length [Value].
+
 --solveSudoku :: Sudoku -> Maybe Sudoku -- solve function
 
 -- EXTRA FUNCTIONS
@@ -171,5 +174,8 @@ allPosSubgrid :: (Row,Column) -> [(Row,Column)]
 allPosSubgrid (r,c) = [ (rOther,cOther) | rOther<-y, cOther<-x ]
       where y = [r..r + 2]
             x = [c..c + 2]
+
+customSort :: [Constraint] -> [Constraint]
+customSort = -- Niet af.
 
 
