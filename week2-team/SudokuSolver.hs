@@ -65,6 +65,11 @@ printSudoku = putStrLn . showGrid . sud2grid
 
 -- FUNCTIONS THAT WERE REQUIRED TO BE ADDED
 
+--STAGE ONE -- -- -- -- -- -- -- --
+--
+--
+-- -- -- -- -- -- -- -- -- -- -- --
+
 -- Returns the sudoku with one value changed.
 
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku
@@ -97,7 +102,10 @@ freeAtPos s (r,c) = (((freeInRow s r) ++ (freeInColumn s c) ++ (freeInSubgrid s 
 openPositions :: Sudoku -> [(Row,Column)]
 openPositions s = concat (foldr(\x acc -> zip [x,x..] (openPosColumn s x) : acc) [] [1..9])
 
-
+--STAGE TWO -- -- -- -- -- -- -- --
+--
+--
+-- -- -- -- -- -- -- -- -- -- -- --
 
 -- Returns if a row is valid (no empty spots and no double numbers).
 
@@ -120,6 +128,17 @@ consistent :: Sudoku -> Bool
 consistent s = foldr(\x acc -> (rowValid s x ) && (colValid s x) &&
                (foldr(\y acc -> (subgridValid s (x,y)) && acc) True [1..9]) &&
                acc) True [1..9]
+
+--STAGE THREE -- -- -- -- -- -- -- --
+--
+--
+-- -- -- -- -- -- -- -- -- -- -- --
+
+--printNode :: Node -> IO() printNode = printSudoku . fst -- helper function
+--solveAndShow :: Grid -> IO() -- helper functinon
+--
+--constraints :: Sudoku -> [Constraint]  -- list of constraints?
+--solveSudoku :: Sudoku -> Maybe Sudoku -- solve function
 
 -- EXTRA FUNCTIONS
 
