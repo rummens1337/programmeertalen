@@ -67,7 +67,10 @@ printSudoku = putStrLn . showGrid . sud2grid
 
 
 
-
+--showTable arr =
+--  unlines $ map (unwords . map (show . (arr !))) indices
+--  where indices = [[(x, y) | x <- [0..8]] | y <- [0..8]]
+--        ((0, 0), (8, 8)) = bounds arr
 
 --STAGE ONE -- -- -- -- -- -- -- --
 --
@@ -76,19 +79,18 @@ printSudoku = putStrLn . showGrid . sud2grid
 
 -- Insert values into sudoku.
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku -- WERKT NOG NIET
-extend s (r,c,v) = [0..8] \\ (foldr(\x acc -> x !! (c - 1) : acc) [] (sud2grid s))
-
+extend s (r,c,v) =
 freeInRow :: Sudoku -> Row -> [Value] -- Werkt.
-freeInRow s r = [0..8] \\ ((sud2grid s) !! (r - 1))
+freeInRow s r = [1..9] \\ ((sud2grid s) !! (r - 1))
 
 freeInColumn :: Sudoku -> Column -> [Value] -- Werkt.
-freeInColumn s c = [0..8] \\ (foldr(\x acc -> x !! (c - 1) : acc) [] (sud2grid s))
+freeInColumn s c = [1..9] \\ (foldr(\x acc -> x !! (c - 1) : acc) [] (sud2grid s))
 
-freeInSubgrid :: Sudoku -> (Row,Column) -> [Value] -- WERKT NOG NIET, wss tuple met fst en snd uit
-freeInSubgrid s (r,c) = [0..8] \\ (quot r 3, quot c 3)
+--freeInSubgrid :: Sudoku -> (Row,Column) -> [Value] -- WERKT NOG NIET, wss tuple met fst en snd uit
+--freeInSubgrid s (r,c) = [1..9] \\ (quot r 3, quot c 3)
 
-freeAtPos :: Sudoku -> (Row,Column) -> [Value] -- Werkt wss.
-freeAtPos s (r,c) = [0..8] \\ ((freeInRow s r) ++ (freeInColumn s c) ++ (freeInSubgrid s (r,c)))
+--freeAtPos :: Sudoku -> (Row,Column) -> [Value] -- Werkt wss.
+--freeAtPos s (r,c) = [1..9] \\ ((freeInRow s r) ++ (freeInColumn s c) ++ (freeInSubgrid s (r,c)))
 
 openPositions :: Sudoku -> [(Row,Column)] -- Werkt.
 openPositions s = concat (foldr(\x acc -> zip [x,x..] (openPosColumn s x) : acc) [] [1..9])
@@ -104,13 +106,13 @@ rowValid s r = (freeInRow s r) == []
 colValid :: Sudoku -> Column -> Bool -- Werkt.
 colValid s c = (freeInColumn s c) == []
 
-subgridValid :: Sudoku -> (Row,Column) -> Bool -- Werkt wss.
-subgridValid s (r,c) = (freeInSubgrid s (r,c)) == []
+--subgridValid :: Sudoku -> (Row,Column) -> Bool -- Werkt wss.
+--subgridValid s (r,c) = (freeInSubgrid s (r,c)) == []
 
-consistent :: Sudoku -> Bool -- Werkt theoretisch gezien wel, nog niet kunnen testen (WERKT DUS WSS NOG NIET)
-consistent s = foldr(\x acc -> (rowValid x (sud2grid s)) && (colValid x (sud2grid s)) && -- Checkt of alle rows en columns valid zijn.
-               (foldr(\y acc -> (subgridValid (x,y) s) && acc) True [1..9]) && -- Checkt of alle subgrids valid zijn.
-               acc) True [1..9]
+--consistent :: Sudoku -> Bool -- Werkt theoretisch gezien wel, nog niet kunnen testen (WERKT DUS WSS NOG NIET)
+--consistent s = foldr(\x acc -> (rowValid x (sud2grid s)) && (colValid x (sud2grid s)) && -- Checkt of alle rows en columns valid zijn.
+--               (foldr(\y acc -> (subgridValid (x,y) s) && acc) True [1..9]) && -- Checkt of alle subgrids valid zijn.
+--               acc) True [1..9]
 
 --STAGE THREE -- -- -- -- -- -- -- --
 --
