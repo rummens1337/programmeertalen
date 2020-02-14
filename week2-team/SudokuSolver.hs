@@ -65,41 +65,38 @@ printSudoku = putStrLn . showGrid . sud2grid
 
 -- [1..9] \\ [row ofzo] (list difference function, yoinked waardes die overeenkomen uit left array)
 
--- step 1
 
+
+
+
+--STAGE ONE -- -- -- -- -- -- -- --
+--
+--
+-- -- -- -- -- -- -- -- -- -- -- --
+
+-- Insert values into sudoku.
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku -- WERKT NOG NIET
-extend s (r,c,v) = doe iets lol
+extend s (r,c,v) = [0..8] \\ (foldr(\x acc -> x !! (c - 1) : acc) [] (sud2grid s))
 
 freeInRow :: Sudoku -> Row -> [Value] -- Werkt.
-freeInRow s r = [1..9] \\ ((sud2grid s) !! (r - 1))
+freeInRow s r = [0..8] \\ ((sud2grid s) !! (r - 1))
 
 freeInColumn :: Sudoku -> Column -> [Value] -- Werkt.
-freeInColumn s c = [1..9] \\ (foldr(\x acc -> x !! (c - 1) : acc) [] (sud2grid s))
+freeInColumn s c = [0..8] \\ (foldr(\x acc -> x !! (c - 1) : acc) [] (sud2grid s))
 
--- freeInSubgrid :: Sudoku -> (Row,Column) -> [Value] -- WERKT NOG NIET, wss tuple met fst en snd uit
--- freeInSubgrid s (r,c) = [1..9] \\ (quot r 3, quot c 3)
-
--- Shit van internet
-
-valAt' :: Sudoku -> (Row, Value) -> Value
-valAt' (i,j) = do
-               a <- get
-               return (a ! (i,j))
-
-freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
-mapM valAt' [(i' + u, j' + v) | u <- [1..3], v <- [1..3]]
-  where i' = ((i-1) `div` 3) * 3
-        j' = ((j-1) `div` 3) * 3
-
--- ^^
+freeInSubgrid :: Sudoku -> (Row,Column) -> [Value] -- WERKT NOG NIET, wss tuple met fst en snd uit
+freeInSubgrid s (r,c) = [0..8] \\ (quot r 3, quot c 3)
 
 freeAtPos :: Sudoku -> (Row,Column) -> [Value] -- Werkt wss.
-freeAtPos s (r,c) = [1..9] \\ ((freeInRow s r) ++ (freeInColumn s c) ++ (freeInSubgrid s (r,c)))
+freeAtPos s (r,c) = [0..8] \\ ((freeInRow s r) ++ (freeInColumn s c) ++ (freeInSubgrid s (r,c)))
 
 openPositions :: Sudoku -> [(Row,Column)] -- Werkt.
 openPositions s = concat (foldr(\x acc -> zip [x,x..] (openPosColumn s x) : acc) [] [1..9])
 
--- step 2
+--STAGE TWO -- -- -- -- -- -- -- --
+--
+--
+-- -- -- -- -- -- -- -- -- -- -- --
 
 rowValid :: Sudoku -> Row -> Bool -- Werkt.
 rowValid s r = (freeInRow s r) == []
@@ -111,9 +108,25 @@ subgridValid :: Sudoku -> (Row,Column) -> Bool -- Werkt wss.
 subgridValid s (r,c) = (freeInSubgrid s (r,c)) == []
 
 consistent :: Sudoku -> Bool -- Werkt theoretisch gezien wel, nog niet kunnen testen (WERKT DUS WSS NOG NIET)
-consistent s = foldr(\x acc -> (rowValid x (sud2grid s)) && (columnValid x (sud2grid s)) && -- Checkt of alle rows en columns valid zijn.
+consistent s = foldr(\x acc -> (rowValid x (sud2grid s)) && (colValid x (sud2grid s)) && -- Checkt of alle rows en columns valid zijn.
                (foldr(\y acc -> (subgridValid (x,y) s) && acc) True [1..9]) && -- Checkt of alle subgrids valid zijn.
                acc) True [1..9]
+
+--STAGE THREE -- -- -- -- -- -- -- --
+--
+--
+-- -- -- -- -- -- -- -- -- -- -- --
+
+--printNode :: Node -> IO() printNode = printSudoku . fst -- helper function
+--solveAndShow :: Grid -> IO() -- helper functinon
+--
+--constraints :: Sudoku -> [Constraint]  -- list of constraints?
+--solveSudoku :: Sudoku -> Maybe Sudoku -- solve function
+
+
+
+
+
 
 -- Extra functies
 
@@ -121,17 +134,3 @@ consistent s = foldr(\x acc -> (rowValid x (sud2grid s)) && (columnValid x (sud2
 
 openPosColumn :: Sudoku -> Row -> [(Value)]
 openPosColumn s r = foldr (\x acc -> x + 1 : acc) [] (elemIndices 0 ((sud2grid s) !! (r - 1)))
-
--- Step 1 - Create list with empty positions in the given sudoku
---extend :: Sudoku -> (Row,Column,Value) -> Sudoku
---freeInRow :: Sudoku -> Row -> [Value]
---freeInColumn :: Sudoku -> Column -> [Value]
---freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
---freeAtPos :: Sudoku -> (Row,Column) -> [Value]
---openPositions :: Sudoku -> [(Row,Column)]
-
--- Step 2 - Check if sudoku is valid
---rowValid :: Sudoku -> Row -> Bool Hergebruik freeInRowfuncties!
---colValid :: Sudoku -> Column -> Bool
---subgridValid :: Sudoku -> (Row,Column) -> Bool
---consistent :: Sudoku -> Bool
