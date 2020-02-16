@@ -10,12 +10,12 @@ import Data.Maybe
 
 testGrid :: Grid -- Testgrid, weghalen voor inleveren
 testGrid =
-  [ [1,0,3,4,5,6,7,8,9]
-  , [4,5,6,7,8,9,1,2,3]
-  , [7,8,9,1,2,3,4,5,6]
+  [ [1,0,3,4,5,6,0,8,9]
+  , [4,5,6,7,8,9,1,0,3]
+  , [7,8,9,1,2,3,0,5,6]
   , [2,3,1,6,7,4,8,9,5]
   , [8,7,5,9,1,2,3,6,4]
-  , [6,9,4,5,3,8,2,1,7]
+  , [6,9,4,5,3,8,0,1,7]
   , [3,1,7,2,6,5,9,4,8]
   , [5,4,2,8,9,7,6,3,1]
   , [9,6,8,3,4,1,5,7,2]
@@ -134,14 +134,52 @@ consistent s = foldr(\x acc -> (rowValid s x ) && (colValid s x) &&
 --
 -- -- -- -- -- -- -- -- -- -- -- --
 
---printNode :: Node -> IO() printNode = printSudoku . fst -- helper function.
+printNode :: Node -> IO()
+printNode = printSudoku . fst -- helper function.
 
 --solveAndShow :: Grid -> IO() -- helper function.
 
-constraints :: Sudoku -> [Constraint]  -- Nog niet gesorteerd!
-constraints s = customSort (foldr(\x acc -> (fst x, snd x, freeAtPos s (fst x, snd x)) : acc) [] (openPositions s)) -- minst naar meest van length [Value].
+constraints :: Sudoku -> [Constraint] -- werkt.
+constraints s = customSort (foldr(\x acc -> (fst x, snd x, freeAtPos s (fst x, snd x)) : acc) [] (openPositions s))
 
---solveSudoku :: Sudoku -> Maybe Sudoku -- solve function
+-- solveSudoku :: Sudoku -> Maybe Sudoku -- solve function
+-- solveSudoku s = maybe s
+
+-- Adds all values with only one possibility to the sudoku.
+
+addValues :: Sudoku -> Sudoku
+addValues s = foldr (\x acc -> extend acc x) s posValues
+    where posValues = foldr (\x acc -> (firstElement x, secondElement x, (thirdElement x !! 0)) : acc)
+                      [] (takeFirstConstraints s (constraints s))
+
+-- Updates the constraint list (always used after addValues.).
+
+remConstValues :: Sudoku -> [Constraint] -> [Constraint]
+remConstValues s l = customSort (foldr (\x acc -> remOneValue x acc) allConstraints firstConstraints)
+    where firstConstraints = takeFirstConstraints s (constraints s)
+          allConstraints = constraints s
+
+-- Takes the first constraints from the list (the ones with only one possibility)
+
+takeFirstConstraints :: Sudoku -> [Constraint] -> [Constraint]
+takeFirstConstraints s l = takeWhile (\x -> (length (thirdElement x)) == 1) (constraints s)
+
+-- Removes a value from every constraint in the same row, column or subgrid as the given constraint, and
+-- removes the given constraint itself too.
+
+remOneValue :: Constraint -> [Constraint] -> [Constraint]
+remOneValue c t = delete c (foldr (\x acc -> if x == c then x : acc
+                  else if (firstElement c) == (firstElement x) || (secondElement c) == (secondElement x) ||
+                  (topLeftPoint (firstElement c, secondElement c)) == (topLeftPoint (firstElement x, secondElement x)) then
+                  (firstElement x, secondElement x, (delete ((thirdElement x) !! 0) (thirdElement x))) : acc else x : acc) [] t)
+
+addNode :: Sudoku -> Node
+addNode s =
+
+-- add values with one possibility if they exist -- CHECK
+-- remove that value from every other constraint in row, column, subgrid > repeat step 1 -- CHECK
+-- if 2> possibilities, add node with recursion -> go back to step 1
+-- if a spot has no possibilities, fuck go back -> how to remove earlier added numbers? If .. then extend 0?
 
 -- EXTRA FUNCTIONS
 
@@ -170,12 +208,25 @@ getValueAtPos s (r,c) = ((sud2grid s) !! (r - 1)) !! (c - 1)
 
 -- Returns all positions of a subgrid.
 
-allPosSubgrid :: (Row,Column) -> [(Row,Column)]
+allPosSubgrid :: (Row, Column) -> [(Row,Column)]
 allPosSubgrid (r,c) = [ (rOther,cOther) | rOther<-y, cOther<-x ]
       where y = [r..r + 2]
             x = [c..c + 2]
 
-customSort :: [Constraint] -> [Constraint]
-customSort = -- Niet af.
+-- Two functions below sort the constraints based on the amount of possibilities.
+
+customSort :: [Constraint] -> [Constraint] -- (Row, Column, [Value])
+customSort c = sortBy sortLT c
+
+sortLT (r1, c1, v1) (r2, c2, v2)
+  | (length v1) < (length v2) = LT
+  | (length v1) > (length v2) = GT
+  | (length v1) == (length v2) = EQ
+
+firstElement (x,_,_) = x
+secondElement (_,y,_) = y
+thirdElement (_,_,v) = v
+
+
 
 
