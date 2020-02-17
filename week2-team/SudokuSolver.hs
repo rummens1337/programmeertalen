@@ -1,28 +1,12 @@
 -- Namen: Thomas Vos, Michel Rummens
 -- Studentnummers: 12829501, 13108093
--- This program can solve a sudoku using several functions and a binary tree.
+-- This program should solve a sudoku using several functions and a binary tree.
 
 module SudokuSolver where
 
 import Sudoku
 import Data.List
 import Data.Maybe
-
-testGrid :: Grid -- Testgrid, weghalen voor inleveren
-testGrid =
-  [ [1,1,1,0,0,0,7,0,9]
-  , [0,0,0,7,8,9,1,2,3] -- 4,5,6
-  , [7,8,9,1,2,3,4,5,6]
-  , [2,3,1,6,7,4,8,9,5]
-  , [8,7,5,9,1,2,0,6,4]
-  , [6,9,4,5,3,8,2,1,7]
-  , [3,1,7,2,6,5,9,4,8]
-  , [5,4,2,8,9,7,6,3,1]
-  , [9,6,8,3,4,1,5,7,2]
-  ]
-
-testSudoku :: Sudoku -- Testsudoku, weghalen voor inleveren
-testSudoku = grid2sud testGrid
 
 positions, values :: [Int]
 positions = [1..9]
@@ -38,12 +22,8 @@ showDgt d = show d
 showSubgridRow:: [Value] -> String
 showSubgridRow = unwords . map showDgt
 
-{-- The chunksOf n xs ++ chunksOf n ys == chunksOf n (xs ++ ys)
-property holds.
---}
-
 chunksOf :: Int -> [a] -> [[a]]
-chunksOf _ [] = [] -- Models the Data.List.Split implementation
+chunksOf _ [] = []
 chunksOf n ls = fst splitted : (chunksOf n . snd) splitted where splitted = splitAt n ls
 
 showRow :: [Value] -> String
@@ -63,76 +43,208 @@ grid2sud gr = \(r,c) -> pos gr (r,c)
 printSudoku :: Sudoku -> IO()
 printSudoku = putStrLn . showGrid . sud2grid
 
--- [1..9] \\ [row ofzo] (list difference function, yoinked waardes die overeenkomen uit left array)
-
-
-
---showTable arr =
---  unlines $ map (unwords . map (show . (arr !))) indices
---  where indices = [[(x, y) | x <- [0..8]] | y <- [0..8]]
---        ((0, 0), (8, 8)) = bounds arr
+-- FUNCTIONS THAT WERE REQUIRED TO BE ADDED
 
 --STAGE ONE -- -- -- -- -- -- -- --
 --
 --
 -- -- -- -- -- -- -- -- -- -- -- --
 
--- Insert values into sudoku.
-extend :: Sudoku -> (Row,Column,Value) -> Sudoku -- WERKT NOG NIET
-extend s (r,c,v) =
-freeInRow :: Sudoku -> Row -> [Value] -- Werkt.
-freeInRow s r = [1..9] \\ ((sud2grid s) !! (r - 1))
+-- Returns the sudoku with one value changed.
 
-freeInColumn :: Sudoku -> Column -> [Value] -- Werkt.
-freeInColumn s c = [1..9] \\ (foldr(\x acc -> x !! (c - 1) : acc) [] (sud2grid s))
+extend :: Sudoku -> (Row,Column,Value) -> Sudoku
+extend s (r,c,v) = grid2sud (foldr(\z acc -> if z == r then (init xs ++ [v] ++ ys) : acc
+                   else (grid !! (z-1)) : acc) [] [1..9])
+   where (xs,ys) = splitAt c (sud2grid s !! (r - 1))
+         grid = sud2grid s
 
---freeInSubgrid :: Sudoku -> (Row,Column) -> [Value] -- WERKT NOG NIET, wss tuple met fst en snd uit
---freeInSubgrid s (r,c) = [1..9] \\ (quot r 3, quot c 3)
+-- Returns a list of every number available for one specific row.
 
---freeAtPos :: Sudoku -> (Row,Column) -> [Value] -- Werkt wss.
---freeAtPos s (r,c) = [1..9] \\ ((freeInRow s r) ++ (freeInColumn s c) ++ (freeInSubgrid s (r,c)))
+freeInRow :: Sudoku -> Row -> [Value]
+freeInRow s r = [1..9] \\ (sud2grid s !! (r - 1))
 
-openPositions :: Sudoku -> [(Row,Column)] -- Werkt.
-openPositions s = concat (foldr(\x acc -> zip [x,x..] (openPosColumn s x) : acc) [] [1..9])
+-- Returns a list of every number available for one specific column.
+
+freeInColumn :: Sudoku -> Column -> [Value]
+freeInColumn s c = [1..9] \\ map (\ x -> x !! (c - 1)) (sud2grid s)
+
+-- Returns a list of every number available for one specific subgrid.
+
+freeInSubgrid :: Sudoku -> (Row,Column) -> [Value]
+freeInSubgrid s (r,c) = [1..9] \\ getValues s (topLeftPoint(r,c))
+
+-- Returns a list of every number available for one specific position.
+
+freeAtPos :: Sudoku -> (Row,Column) -> [Value]
+freeAtPos s (r,c) = ((freeInRow s r ++ freeInColumn s c ++ freeInSubgrid s (r,c)) \\ [1..9]) \\ [1..9]
+
+-- Returns a list of every open position.
+
+openPositions :: Sudoku -> [(Row,Column)]
+openPositions s = concat (map (\ x -> zip [x, x ..] (openPosColumn s x)) [1..9])
 
 --STAGE TWO -- -- -- -- -- -- -- --
 --
 --
 -- -- -- -- -- -- -- -- -- -- -- --
 
-rowValid :: Sudoku -> Row -> Bool -- Werkt.
-rowValid s r = (freeInRow s r) == []
+-- Returns if a row is valid (no empty spots and no double numbers).
 
-colValid :: Sudoku -> Column -> Bool -- Werkt.
-colValid s c = (freeInColumn s c) == []
+rowValid :: Sudoku -> Row -> Bool
+rowValid s r = freeInRow s r == []
 
---subgridValid :: Sudoku -> (Row,Column) -> Bool -- Werkt wss.
---subgridValid s (r,c) = (freeInSubgrid s (r,c)) == []
+-- Returns if a column is valid (no empty spots and no double numbers).
 
---consistent :: Sudoku -> Bool -- Werkt theoretisch gezien wel, nog niet kunnen testen (WERKT DUS WSS NOG NIET)
---consistent s = foldr(\x acc -> (rowValid x (sud2grid s)) && (colValid x (sud2grid s)) && -- Checkt of alle rows en columns valid zijn.
---               (foldr(\y acc -> (subgridValid (x,y) s) && acc) True [1..9]) && -- Checkt of alle subgrids valid zijn.
---               acc) True [1..9]
+colValid :: Sudoku -> Column -> Bool
+colValid s c = freeInColumn s c == []
+
+-- Returns if a subgrid is valid (no empty spots and no double numbers).
+
+subgridValid :: Sudoku -> (Row,Column) -> Bool
+subgridValid s (r,c) = freeInSubgrid s (r,c) == []
+
+-- Returns if a sudoku is valid (no empty spots and no double numbers).
+
+consistent :: Sudoku -> Bool
+consistent s = foldr(\x acc -> rowValid s x && colValid s x &&
+               foldr(\y acc -> (subgridValid s (x,y)) && acc) True [1..9] &&
+               acc) True [1..9]
 
 --STAGE THREE -- -- -- -- -- -- -- --
 --
 --
 -- -- -- -- -- -- -- -- -- -- -- --
 
---printNode :: Node -> IO() printNode = printSudoku . fst -- helper function
---solveAndShow :: Grid -> IO() -- helper functinon
---
---constraints :: Sudoku -> [Constraint]  -- list of constraints?
---solveSudoku :: Sudoku -> Maybe Sudoku -- solve function
+printNode :: Node -> IO()
+printNode = printSudoku . fst -- helper function.
 
+--solveAndShow :: Grid -> IO() -- helper function.
+--solveAndShow = grid2sud (firstElement (addNodeOrNot s))
 
+-- Returns a list of all contraints, which is the tree.
 
+constraints :: Sudoku -> [Constraint]
+constraints s = customSort (map (\ x -> (fst x, snd x, freeAtPos s (fst x, snd x))) (openPositions s))
 
+-- Solves the sudoku > was not able to finish it in. Progression I've made can be found in comments below.
 
+-- solveSudoku :: Sudoku -> Maybe Sudoku
+-- solveSudoku s = Maybe (firstElement (addNodeOrNot s (constraints s)))
 
--- Extra functies
+-- Adds all values with only one possibility to the sudoku.
+
+addValues :: Sudoku -> Sudoku
+addValues s = foldr (\x acc -> extend acc x) s posValues
+    where posValues = foldr (\x acc -> (firstElement x, secondElement x, (thirdElement x !! 0)) : acc)
+                      [] (takeFirstConstraints s)
+
+-- Updates the constraint list (always used after addValues.).
+
+remConstValues :: Sudoku -> [Constraint]
+remConstValues s = customSort (foldr (\x acc -> remOneValue x acc) allConstraints firstConstraints)
+    where firstConstraints = takeFirstConstraints s
+          allConstraints = constraints s
+
+-- Removes a value from every constraint in the same row, column or subgrid as the given constraint, and
+-- removes the given constraint itself too.
+
+remOneValue :: Constraint -> [Constraint] -> [Constraint]
+remOneValue c t = delete c (foldr (\x acc -> if x == c then x : acc
+                  else if (firstElement c) == (firstElement x) || (secondElement c) == (secondElement x) ||
+                  (topLeftPoint (firstElement c, secondElement c)) ==
+                  (topLeftPoint (firstElement x, secondElement x)) then
+                  (firstElement x, secondElement x, (delete ((thirdElement x) !! 0) (thirdElement x))) : acc
+                  else x : acc) [] t)
+
+-- Takes the first constraints from the list (the ones with only one possibility).
+
+takeFirstConstraints :: Sudoku -> [Constraint]
+takeFirstConstraints s = takeWhile (\x -> (length (thirdElement x)) == 1) (constraints s)
+
+-- Adds a node to the tree.
+
+-- addNodeOrNot :: Sudoku -> [Constraint] -> Node
+-- addNodeOrNot oldSudoku oldConstraints
+--                   | (length newConstraints) == 0 = (newSudoku, newConstraints)
+--                   | (foldr (\x acc -> thirdElement x == [] || acc) False newConstraints) == True = (oldSudoku, oldConstraints)
+--                   | (length (thirdElement (newConstraints !! 0))) >= 2 = (solveNode oldSudoku)
+--                   | (length (thirdElement (newConstraints !! 0))) == 1 = (addNodeOrNot newSudoku newConstraints)
+--                   | otherwise = (newSudoku, newConstraints)
+--                     where newSudoku = addValues oldSudoku
+--                           newConstraints = remConstValues oldSudoku
+
+-- -- Solves a node
+
+-- solveNode :: Sudoku -> Node
+-- solveNode s = foldr (\x acc -> firstElement(addNodeOrNot acc [x])) s (thirdElement ((constraints s) !! 0))
+
+-- EXTRA FUNCTIONS
 
 -- Returns all the indices of the empty spots of a row, and therefore the column numbers.
 
 openPosColumn :: Sudoku -> Row -> [(Value)]
 openPosColumn s r = foldr (\x acc -> x + 1 : acc) [] (elemIndices 0 ((sud2grid s) !! (r - 1)))
+
+-- Returns the top left point (x,y) in a subgrid.
+
+topLeftPoint :: (Row, Column) -> (Row, Column)
+topLeftPoint (r,c) = (x,y)
+             where x = ((quot (r - 1) 3) * 3) + 1
+                   y = ((quot (c - 1) 3) * 3) + 1
+
+-- Returns all values of a subgrid.
+
+getValues :: Sudoku -> (Row, Column) -> [Value]
+getValues s (r,c) = foldr(\x acc -> (getValueAtPos s x) : acc) [] allPos
+     where allPos = allPosSubgrid (r,c)
+
+-- Returns the value of a certain position.
+
+getValueAtPos :: Sudoku -> (Row, Column) -> Value
+getValueAtPos s (r,c) = ((sud2grid s) !! (r - 1)) !! (c - 1)
+
+-- Returns all positions of a subgrid.
+
+allPosSubgrid :: (Row, Column) -> [(Row,Column)]
+allPosSubgrid (r,c) = [ (rOther,cOther) | rOther<-y, cOther<-x ]
+      where y = [r..r + 2]
+            x = [c..c + 2]
+
+-- Two functions below sort the constraints based on the amount of possibilities.
+
+customSort :: [Constraint] -> [Constraint] -- (Row, Column, [Value])
+customSort c = sortBy sortLT c
+
+sortLT (r1, c1, v1) (r2, c2, v2)
+  | (length v1) < (length v2) = LT
+  | (length v1) > (length v2) = GT
+  | (length v1) == (length v2) = EQ
+
+-- Three functions below get the first, second and third element of a pair.
+
+firstElement (x,_,_) = x
+secondElement (_,y,_) = y
+thirdElement (_,_,v) = v
+
+-- A testgrid, used for quickly testing the stage 1 and 2 functions.
+
+testGrid :: Grid
+testGrid =
+  [ [1,0,3,4,5,6,0,8,9]
+  , [4,5,6,7,8,9,1,0,3]
+  , [7,8,9,1,2,3,0,5,6]
+  , [2,3,1,6,7,4,8,9,5]
+  , [8,7,5,9,1,2,3,6,4]
+  , [6,9,4,5,3,8,0,1,7]
+  , [3,1,7,2,6,5,9,4,8]
+  , [5,4,2,8,9,7,6,3,1]
+  , [9,6,8,3,4,1,5,7,2]
+  ]
+
+-- A testsudoku, used to display the testgrid shown above.
+
+testSudoku :: Sudoku
+testSudoku = grid2sud testGrid
+
+
+
