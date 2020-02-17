@@ -1,0 +1,5 @@
+http://www.learnprolognow.org/lpnpage.php?pageid=top
+
+https://staff.science.uva.nl/u.endriss/teaching/prolog/prolog.pdf
+
+https://www.swi-prolog.org/pldoc/doc_for?object=manual

@@ -1,0 +1,18 @@
+Simple prolog help
+http://www.learnprolognow.org/lpnpage.php?pageid=top
+
+The slide
+https://staff.science.uva.nl/u.endriss/teaching/prolog/prolog.pdf
+
+IDK
+https://www.swi-prolog.org/pldoc/doc_for?object=manual
+
+Append youtube video
+https://www.youtube.com/watch?v=WckoUDTaXN8
+
+Palindrome youtube video
+https://www.youtube.com/watch?v=fLCIQEneeAw
+
+Sudoku youtube video + website
+https://www.youtube.com/watch?v=5KUdEZTu06o&feature=youtu.be
+https://www.metalevel.at/sudoku/

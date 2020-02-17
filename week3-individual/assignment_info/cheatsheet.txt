@@ -1,0 +1,2 @@
+; -> volgende element uit de query
+?- [quod, licet, jovi, non, licet, bovi] = [_, X | _]. -> haal 2e element uit list
