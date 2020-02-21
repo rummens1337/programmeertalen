@@ -20,9 +20,9 @@ hc:
 # Generates the simulated annealing files in order.
 sa:
 	javac Main.java
-	./team/sa_plots.sh
-	./team/sa_statistics.sh
 	./team/sa_experiments.sh
+	./team/sa_statistics.sh
+	./team/sa_plots.sh
 
 # Removes all generated files.
 clean: doc_clean
