@@ -12,6 +12,8 @@ MAX_TEMPERATURE=(0 1 10 100 1000 10000)
 
 OUTPUT_DIRECTORY="./team/sa-logs"
 
+# Executes the simulated_annealing algorithm and saves its output to the OUTPUT_DIRECTORY.
+# Also prints some debugging info.
 executeSimulatedAnnealing() {
   echo "__________________________________________"
   echo "Executing the simulated annealing algorithm. "
@@ -20,13 +22,16 @@ executeSimulatedAnnealing() {
   start=$(date +%s)
   iterator=1
 
-  # Iterate for the amount of different unpack numbers.
+  # Iterate for the amount of elements in MAX_TEMPERATURE.
   for i in "${MAX_TEMPERATURE[@]}"; do
     echo "Max temperature: " $i
 
-    # Run each unpack number five times.
+    # Iterate for the NUMBER_OF_RUNS.
     for j in $(eval echo "{1..$NUMBER_OF_RUNS}"); do
-      java Main $VERBOSE $NR_ITEMS $DIMENSIONS $SOLVER_NAME $NR_ITERATIONS $NR_TO_UNPACK >"$OUTPUT_DIRECTORY/unpackfile$iterator-run$j.txt"
+
+      java Main $VERBOSE $NR_ITEMS $DIMENSIONS $SOLVER_NAME $NR_ITERATIONS $NR_TO_UNPACK > \
+        "$OUTPUT_DIRECTORY/unpackfile$iterator-run$j.txt"
+
       echo "Created file: $OUTPUT_DIRECTORY/unpackfile$iterator-run$j"
     done
     iterator=$((iterator + 1))

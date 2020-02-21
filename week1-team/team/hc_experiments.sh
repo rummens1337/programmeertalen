@@ -10,12 +10,13 @@ OUTPUT_DIRECTORY="./team/hc-logs"
 NUMBER_OF_UNPACKS=6
 NUMBER_OF_RUNS=5
 
+# Was used for local testing purposes.
 changeDirectory() {
-  # Change working directory and compile Main.java.
   cd ../ && javac Main.java
 }
 
-# We are aware that two loops are a bit redundant, but this is the somewhat more readable variant.
+# If enabled, reads input from user for the value NUMBER_OF_UNPACKS.
+# User input is confirmed before continuing.
 readUnpacks() {
   while true; do
     # Prompt user for input
@@ -31,6 +32,8 @@ readUnpacks() {
   done
 }
 
+# If enabled, reads input from user for the value NUMBER_OF_RUNS.
+# User input is confirmed before continuing.
 readRuns() {
   while true; do
     # Prompt user for input
@@ -46,6 +49,8 @@ readRuns() {
   done
 }
 
+# Executes the hill_climbing algorithm and saves it's output to the OUTPUT_DIRECTORY.
+# Also prints some debugging info.
 executeHillClimb() {
   echo "__________________________________________"
   echo "Executing the hill_climbing algorithm. "
@@ -58,7 +63,10 @@ executeHillClimb() {
 
     # Iterate for the amount of number of runs.
     for j in $(eval echo "{1..$NUMBER_OF_RUNS}"); do
-      java Main $VERBOSE $NR_ITEMS $DIMENSIONS $SOLVER_NAME $NR_ITERATIONS $NR_TO_UNPACK >"$OUTPUT_DIRECTORY/unpackfile$i-run$j.txt"
+
+      java Main $VERBOSE $NR_ITEMS $DIMENSIONS $SOLVER_NAME $NR_ITERATIONS $NR_TO_UNPACK > \
+        "$OUTPUT_DIRECTORY/unpackfile$i-run$j.txt"
+
       echo "Created file: $OUTPUT_DIRECTORY/unpackfile$i-run$j"
     done
   done

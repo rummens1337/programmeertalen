@@ -10,7 +10,7 @@ gnuplot -e "set terminal pdf; \
             '$OUTPUT_DIRECTORY/unpackfile1-run2.txt' with lines, \
             '$OUTPUT_DIRECTORY/unpackfile1-run3.txt' with lines, \
             '$OUTPUT_DIRECTORY/unpackfile1-run4.txt' with lines, \
-            '$OUTPUT_DIRECTORY/unpackfile1-run5.txt' with lines" > $OUTPUT_DIRECTORY/final.pdf
+            '$OUTPUT_DIRECTORY/unpackfile1-run5.txt' with lines" >$OUTPUT_DIRECTORY/final.pdf
 
 # File with the average value and standard deviation of each of 6 runs
 # - result.dat
@@ -35,5 +35,4 @@ gnuplot -e "set terminal pdf; \
             set title 'average value'; \
             set boxwidth -2; \
             set xrange [0:7]; \
-            plot '$OUTPUT_DIRECTORY/result.dat' using 1:3:4:xtic(2) with boxerrorbars;"  > $OUTPUT_DIRECTORY/average-value-data.pdf
-            
+            plot '$OUTPUT_DIRECTORY/result.dat' using 1:3:4:xtic(2) with boxerrorbars;" >$OUTPUT_DIRECTORY/average-value-data.pdf
