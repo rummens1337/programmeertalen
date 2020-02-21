@@ -22,7 +22,7 @@ palindroom(List) :- list_reverse(List,List).
 list_reverse([], []).
 list_reverse([H|T], Reversed) :-
     list_reverse(T, ReversedRest),
-    append3(ReversedRest, [H], Reversed).
+    append(ReversedRest, [H], Reversed).
 
 %! ASSIGNMENT 3 -------- Sudoku
 sudoku9(Rows, Solution) :-

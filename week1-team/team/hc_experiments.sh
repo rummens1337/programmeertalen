@@ -6,9 +6,9 @@ NR_ITEMS="-nr_items 100"
 DIMENSIONS="-dimensions 2"
 SOLVER_NAME="-solver hill_climbing"
 NR_ITERATIONS="-nr_iterations 10000"
-OUTPUT_DIRECTORY="team/hc-logs"
-NUMBER_OF_UNPACKS=0
-NUMBER_OF_RUNS=0
+OUTPUT_DIRECTORY="./team/hc-logs"
+NUMBER_OF_UNPACKS=6
+NUMBER_OF_RUNS=5
 
 changeDirectory(){
   # Change working directory and compile Main.java.
@@ -55,12 +55,12 @@ executeHillClimb(){
 
   start=$(date +%s)
   # Iterate for the amount of different unpack numbers.
-  for (( i=1; i < NUMBER_OF_UNPACKS+1; i++ ))
+  for i in $(eval echo "{1..$NUMBER_OF_UNPACKS}")
   do
     NR_TO_UNPACK="-nr_to_unpack $i"
 
     # Run each unpack number five times.
-    for (( j=1; j < NUMBER_OF_RUNS+1; j++ ))
+    for j in $(eval echo "{1..$NUMBER_OF_RUNS}")
     do
       java Main $VERBOSE $NR_ITEMS $DIMENSIONS $SOLVER_NAME $NR_ITERATIONS $NR_TO_UNPACK > "$OUTPUT_DIRECTORY/unpackfile$i-run$j.txt"
       echo "Created file: $OUTPUT_DIRECTORY/unpackfile$i-run$j"
@@ -76,7 +76,10 @@ executeHillClimb(){
 
 # Execute the functions defined above.
 # In large files, doing such a thing gives you oversight in the line of execution in a simple yet powerfull manner.
-changeDirectory
-readUnpacks
-readRuns
+# changeDirectory
+# readUnpacks
+# readRuns
+
+# The above steps are commented out, because it was outside the scope of the project.
+# They were however fun to experiment with and gave us a better understanding of interactive bash scripts.
 executeHillClimb

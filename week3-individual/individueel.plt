@@ -3,14 +3,14 @@
 % Shows different ways of testing in prolog.
 
 test(myappend) :-
-    individueel:append3([a, b], [c], [a, b, c]).
+    individueel:append([a, b], [c], [a, b, c]).
 
 
 test(myappend_assert) :-
-    assertion(individueel:append3([a], [b], [a, b])),
-    assertion(individueel:append3([2, 3], [1, 4], [2, 3, 1, 4])),
-    assertion(individueel:append3(["Hello "], ["World"], ["Hello ", "World"])),
-    assertion(individueel:append3([1, 2, 3, 4, 5], [6, 7, 8, 9, 10],
+    assertion(individueel:append([a], [b], [a, b])),
+    assertion(individueel:append([2, 3], [1, 4], [2, 3, 1, 4])),
+    assertion(individueel:append(["Hello "], ["World"], ["Hello ", "World"])),
+    assertion(individueel:append([1, 2, 3, 4, 5], [6, 7, 8, 9, 10],
                                  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).
 
 

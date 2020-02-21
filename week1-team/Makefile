@@ -7,9 +7,28 @@ JAVA   = java
 
 HC_LOGS = $(shell find ./team/hc-logs -type f -name '*.*')
 SA_LOGS = $(shell find ./team/sa-logs -type f -name '*.*')
-PDFS    = $(shell find ./team/plots -type f -name '*.pdf')
 JAVAS   = $(shell find ./ -type f -name '*.java')
 CLASSES = $(patsubst %.java,%.class,$(JAVAS))
+
+# Generates the hill climbing files in order.
+hc: 
+	javac Main.java
+	./team/hc_experiments.sh
+	./team/hc_statistics.sh
+	./team/hc_plots.sh
+
+# Generates the simulated annealing files in order.
+sa:
+	javac Main.java
+	./team/sa_plots.sh
+	./team/sa_statistics.sh
+	./team/sa_experiments.sh
+
+# Removes all generated files.
+clean: doc_clean
+	$(RM) $(CLASSES)
+	rm -rf $(HC_LOGS)
+	rm -rf $(SA_LOGS)
 
 # Onderstaande bestanden zijn voor het testscript dat er al stond.
 
@@ -41,33 +60,5 @@ doc_clean:
 
 # Rules below are added and don't belong to the testscript.
 # These rules execute the hc files in order.
-
-hc: hc_statistics
-	./team/hc_plots.sh
-
-hc_statistics: hc_experiments
-	./team/hc_statistics.sh
-
-hc_experiments:
-	./team/hc_experiments.sh
-
-# These rules execute the sa files in order.
-
-sa: sa_statistics
-	./team/sa_plots.sh
-
-sa_statistics: sa_experiments
-	./team/sa_statistics.sh
-
-sa_experiments:
-	./team/sa_experiments.sh
-
-# This last rule removes all generated files.
-
-clean: doc_clean
-	$(RM) $(CLASSES)
-	rm -rf $(HC_LOGS)
-	rm -rf $(SA_LOGS)
-	rm -rf $(PDFS)
 
 

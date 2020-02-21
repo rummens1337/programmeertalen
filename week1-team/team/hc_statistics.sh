@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WORKING_DIR="./hc-logs"
+WORKING_DIR="./team/hc-logs"
 
 filterFiles(){
     # Yes, the line exceeds the max length. But to flex the awesomeness of this command, it is kept on a single line :cool:
