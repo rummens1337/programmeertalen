@@ -17,37 +17,52 @@ edge(3,2,2).
 edge(5,1,3).
 edge(5,4,2).
 
-path(From, To, Path) :-
-    path(From, To, Visited, Path).
 
-path(From, To, Visited, Path) :-
-    R = [],
-    Path = [],
-    edge(To,Y,Z),
-    append([Y], R, Visited),
-    write(Visited).
+%  van https://www.cpp.edu/~jrfisher/www/prolog_tutorial/2_15A.pl
+connected(X,Y,L) :- edge(X,Y,L) ; edge(Y,X,L).
+
+path(A,B,Path,Len) :-
+       travel(A,B,[A],Q,Len), 
+       reverse(Q,Path).
+
+travel(A,B,P,[B|P],L) :- 
+       connected(A,B,L).
+travel(A,B,Visited,Path,L) :-
+       connected(A,C,D),           
+       C \== B,
+       \+member(C,Visited),
+       travel(C,B,[C|Visited],Path,L1),
+       L is D+L1.   
+%  tot hier
+
+% Deze functie niet veranderen, deze geeft een soort van goed resultaat!
+% path(X, Y, _, Path) :-
+%     edge(X, Y, C),
+%     Path = [edge(X, Y, C)].
+
+
+
+
+
+
+
+
+% path(From, To, Path) :-
+%     path(From, To, Visited, Path).
+
+% path(From, To, Visited, Path) :-
+%     R = [],
+%     Path = [],
+%     edge(To,Y,Z),
+%     append([Y], R, Visited),
+%     write(Visited).
     
 
+% connected(X,Y,L) :- E = edge(X,Y,L).
+% connected(X,Y,L) :- edge(Y,X,L).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-connected(X,Y,L) :- E = edge(X,Y,L).
-connected(X,Y,L) :- edge(Y,X,L).
-
-is_connected(E1, E2, L) :- edge(E1, E2, _).
-is_connected(E1, E2, L) :- edge(E1, R, _) , is_connected(R, E2, L).
+% is_connected(E1, E2, L) :- edge(E1, E2, _).
+% is_connected(E1, E2, L) :- edge(E1, R, _) , is_connected(R, E2, L).
 
 
 addition(X,Y,Z) :- Z is X+Y.
