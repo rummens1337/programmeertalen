@@ -19,20 +19,22 @@ edge(5,4,2).
 
 
 %  van https://www.cpp.edu/~jrfisher/www/prolog_tutorial/2_15A.pl
-connected(X,Y,L) :- edge(X,Y,L) ; edge(Y,X,L).
+connected(X,Y,L) :- edge(X,Y,L).
 
+%    F T Vis  Path
 path(A,B,Path,Len) :-
-       travel(A,B,[A],Q,Len), 
+       travel(A,B,[],Q,Len),
        reverse(Q,Path).
 
-travel(A,B,P,[B|P],L) :- 
+travel(A,B,P,[edge(A,B,L) |P ],L) :-
        connected(A,B,L).
 travel(A,B,Visited,Path,L) :-
-       connected(A,C,D),           
+       connected(A,C,D),
        C \== B,
-       \+member(C,Visited),
-       travel(C,B,[C|Visited],Path,L1),
-       L is D+L1.   
+       \+member(edge(A,C,_),Visited),
+       travel(C,B,[edge(A,C,D) | Visited],Path,L1),
+       L is D+L1.
+
 %  tot hier
 
 % Deze functie niet veranderen, deze geeft een soort van goed resultaat!
@@ -56,7 +58,7 @@ travel(A,B,Visited,Path,L) :-
 %     edge(To,Y,Z),
 %     append([Y], R, Visited),
 %     write(Visited).
-    
+
 
 % connected(X,Y,L) :- E = edge(X,Y,L).
 % connected(X,Y,L) :- edge(Y,X,L).
@@ -65,19 +67,19 @@ travel(A,B,Visited,Path,L) :-
 % is_connected(E1, E2, L) :- edge(E1, R, _) , is_connected(R, E2, L).
 
 
-addition(X,Y,Z) :- Z is X+Y.
-add(X,Y):-
-   between(X,Y,A),
-   addition(X,A,Z),
-   writeln(addition(X,A,Z)),
-   X1 is X+1,
-   add(X1,Y).
+% addition(X,Y,Z) :- Z is X+Y.
+% add(X,Y):-
+%    between(X,Y,A),
+%    addition(X,A,Z),
+%    writeln(addition(X,A,Z)),
+%    X1 is X+1,
+%    add(X1,Y).
 
 %! FACTS
-bigger(elephant, horse).
-bigger(horse, donkey).
-bigger(donkey, dog).
-bigger(donkey, monkey).
+% bigger(elephant, horse).
+% bigger(horse, donkey).
+% bigger(donkey, dog).
+% bigger(donkey, monkey).
 
 % bigger(elephant,X). yields -> horse
 % is_bigger(elephant,X). yields -> dog, monkey, donkey, horse
@@ -87,5 +89,5 @@ bigger(donkey, monkey).
 % (horse, Z=donkey) -> (Z=donkey,dog) ==> True
 %
 % RULES
-is_bigger(X, Y) :- bigger(X, Y).
-is_bigger(X, Y) :- bigger(X, Z), is_bigger(Z, Y).
+% is_bigger(X, Y) :- bigger(X, Y).
+% is_bigger(X, Y) :- bigger(X, Z), is_bigger(Z, Y).
