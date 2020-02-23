@@ -7,20 +7,23 @@ cost([edge(_,_,C) | RestOfPath], Cost) :-
        Cost is C+NewCost.
 
 shortestPath(F,T,Path) :-
-       findall(Newpath, path(F,T,Newpath), List), % Berekent alle paden in 1 keer en zet ze in een list.
-       addCostBetween(List),
-       sort(List, [(Shortest,_)|_]),
+       findall((Newpath,C), (path(F,T,Newpath),cost(Newpath,C)), Paths),
+       sort(Paths, [(Shortest,_)|_]),
        Path = Shortest.
 
-    %    List = [H | _],
-    %    Path = H.
+% Onderstaande predikaten zouden in eerste instantie de tuples van Path en Cost
+% Moeten vormen, maar werkt niet dus hebben we het anders moeten doen. Als
+% diegene die dit nakijkt een oplossing weet om deze predikaten werkend
+% te krijgen, graag!
 
-addCostBetween(Paths) :-
-    addCost(Paths, []).
+% addCostBetween(Paths, PathsPlusCosts),
 
-addCost([],[]).
-addCost([H | T], List) :-
-       cost(H,Cost),
-       append([(H,Cost)], List, NewList),
-       addCost(T, NewList).
+% addCostBetween(Paths, PathsPlusCosts) :-
+%     addCost(Paths, [], PathsPlusCosts).
+
+% addCost([],[]).
+% addCost([H | T], List, PathsPlusCosts) :-
+%        cost(H,Cost),
+%        append([(H,Cost)], List, NewList),
+%        addCost(T, NewList, PathsPlusCosts).
 
