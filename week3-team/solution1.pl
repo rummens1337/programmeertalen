@@ -7,6 +7,7 @@ travel(X, Y, Visited, Path) :-
     X==Y,
     reverse(Visited, Path),
     !.
+
 travel(From, To, Visited, Path) :-
     edge(From, X, Cost),
     From\==To,

@@ -2,6 +2,7 @@
 :- consult('solution1.pl').
 
 cost([], 0).
+
 cost([edge(_, _, C)|RestOfPath], Cost) :-
     cost(RestOfPath, NewCost),
     Cost is C+NewCost.
