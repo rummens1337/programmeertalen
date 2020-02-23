@@ -1,15 +1,19 @@
 :- consult('graph.pl').
 :- consult('solution1.pl').
 
-cost([],0).
-cost([edge(_,_,C) | RestOfPath], Cost) :-
-       cost(RestOfPath, NewCost),
-       Cost is C+NewCost.
+cost([], 0).
+cost([edge(_, _, C)|RestOfPath], Cost) :-
+    cost(RestOfPath, NewCost),
+    Cost is C+NewCost.
 
-shortestPath(F,T,Path) :-
-       findall((Newpath,C), (path(F,T,Newpath),cost(Newpath,C)), Paths),
-       sort(Paths, [(Shortest,_)|_]),
-       Path = Shortest.
+shortestPath(F, T, Path) :-
+    findall((Newpath, C),
+            ( path(F, T, Newpath),
+              cost(Newpath, C)
+            ),
+            Paths),
+    sort(Paths, [(Shortest, _)|_]),
+    Path=Shortest.
 
 % Onderstaande predikaten zouden in eerste instantie de tuples van Path en Cost
 % Moeten vormen, maar werkt niet dus hebben we het anders moeten doen. Als
@@ -26,4 +30,3 @@ shortestPath(F,T,Path) :-
 %        cost(H,Cost),
 %        append([(H,Cost)], List, NewList),
 %        addCost(T, NewList, PathsPlusCosts).
-
