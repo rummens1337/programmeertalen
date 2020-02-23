@@ -17,4 +17,5 @@ addCost([],_).
 addCost([H | T], List) :-
        cost(H,Cost),
        append([H], [Cost], Newlist),
+
        addCost(T, Newlist).
