@@ -12,7 +12,6 @@
 %     path(X, To, [edge(From, X, Cost)|Visited], Path).
 
 
-
 % cost([],Cost):-
 %     Cost = 0.
 % cost([Head|Tail], Total):-
