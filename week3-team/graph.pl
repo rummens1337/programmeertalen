@@ -17,35 +17,6 @@ edge(3,2,2).
 edge(5,1,3).
 edge(5,4,2).
 
-
-%  van https://www.cpp.edu/~jrfisher/www/prolog_tutorial/2_15A.pl
-connected(X,Y,L) :- edge(X,Y,L).
-
-%    F T Path
-path(F,T,Path) :-
-       travel(F,T,[],Visited,_),
-       reverse(Visited,Path).
-
-travel(A,B,P,[edge(A,B,L) |P ],L) :-
-       connected(A,B,L).
-travel(A,B,Visited,Path,L) :-
-       connected(A,C,D),
-       C \== B,
-       \+member(edge(A,C,_),Visited),
-       travel(C,B,[edge(A,C,D) | Visited],Path,L1),
-       L is D+L1.
-
-cost([],0).
-cost([edge(_,_,C) | RestOfPath], Cost) :-
-       cost(RestOfPath, NewCost),
-       Cost is C+NewCost.
-
-shortestPath(F,T,Path) :-
-       findall(path(F,T,Path), path(F,T,Path), Path). % Berekent alle paden in 1 keer en zet ze in een list.
-
-
-
-
 %  tot hier
 
 % Deze functie niet veranderen, deze geeft een soort van goed resultaat!
