@@ -21,12 +21,12 @@ cost([edge(_, _, C)|RestOfPath], Cost) :-
 % van die gesorteerde lijst de eerste (head) te pakken.
 
 shortestPath(F, T, Path) :-
-    findall((Newpath, C),
+    findall((C, Newpath),
             ( path(F, T, Newpath),
               cost(Newpath, C)
             ),
             Paths),
-    sort(Paths, [(Shortest, _)|_]),
+    sort(Paths, [(_,Shortest)|_]),
     Path=Shortest.
 
 % Onderstaande predikaten zouden in eerste instantie de tuples van Path en Cost
