@@ -1,7 +1,9 @@
-% Namen: Thomas Vos, Michel Rummens
-% Studentnummers: 12829501, 13108093
-% In dit bestand staan predikaten die een pad tussen twee knopen berekenen.
-:- consult('graph.pl').
+/**
+ * Namen: Thomas Vos, Michel Rummens
+ * Studentnummers: 12829501, 13108093
+ * In dit bestand staan predikaten die een pad tussen twee knopen berekenen.
+ */
+:- ensure_loaded('graph.pl').
 
 % "path" fungeert als een soort "stepping stone" hier en roept alleen "travel"
 % aan met dezelfde argumenten + een lege lijst die uiteindelijk de lijst met

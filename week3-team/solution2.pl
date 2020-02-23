@@ -1,7 +1,9 @@
-% Namen: Thomas Vos, Michel Rummens
-% Studentnummers: 12829501, 13108093
-% In dit bestand staan predikaten die de kosten van een pad kunnen berekenen,
-% en een predikaat dat het kortste pad tussen twee knopen kan bepalen.
+/**
+ * Namen: Thomas Vos, Michel Rummens
+ * Studentnummers: 12829501, 13108093
+ * In dit bestand staan predikaten die de kosten van een pad kunnen berekenen,
+ * en een predikaat dat het kortste pad tussen twee knopen kan bepalen.
+ */
 :- consult('graph.pl').
 :- consult('solution1.pl').
 
