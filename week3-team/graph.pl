@@ -35,6 +35,17 @@ travel(A,B,Visited,Path,L) :-
        travel(C,B,[edge(A,C,D) | Visited],Path,L1),
        L is D+L1.
 
+cost([],0).
+cost([edge(_,_,C) | RestOfPath], Cost) :-
+       cost(RestOfPath, NewCost),
+       Cost is C+NewCost.
+
+shortestPath(F,T,Path) :-
+       findall(path(F,T,Path), path(F,T,Path), Path). % Berekent alle paden in 1 keer en zet ze in een list.
+
+
+
+
 %  tot hier
 
 % Deze functie niet veranderen, deze geeft een soort van goed resultaat!
