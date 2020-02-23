@@ -4,8 +4,8 @@
  * In dit bestand staan predikaten die de kosten van een pad kunnen berekenen,
  * en een predikaat dat het kortste pad tussen twee knopen kan bepalen.
  */
-:- consult('graph.pl').
-:- consult('solution1.pl').
+:- ensure_loaded('graph.pl').
+:- ensure_loaded('solution1.pl').
 
 % "cost" berekent de kosten van een pad, door steeds de kost van een edge op te
 % tellen bij het totaal met behulp van recursie.
