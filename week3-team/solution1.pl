@@ -1,19 +1,31 @@
 :- consult('graph.pl').
 
-%  van https://www.cpp.edu/~jrfisher/www/prolog_tutorial/2_15A.pl
-connected(X,Y,L) :-
-    edge(X,Y,L).
-
 %    F T Path
-path(F,T,Path) :-
-       travel(F,T,[],Visited,_),
-       reverse(Visited,Path).
+% path(F,T,Path) :-
+%        travel(F,T,[],Visited,_),
+%        reverse(Visited,Path).
 
-travel(A,B,P,[edge(A,B,L) |P ],L) :-
-       connected(A,B,L).
-travel(A,B,Visited,Path,L) :-
-       connected(A,C,D),
-       C \== B,
-       \+member(edge(A,C,_),Visited),
-       travel(C,B,[edge(A,C,D) | Visited],Path,L1),
-       L is D+L1.
+% travel(A,B,P,[edge(A,B,L) |P ],L) :-
+%        edge(A,B,L).
+
+% travel(A,B,Visited,Path,L) :-
+%        edge(A,C,D),
+%        C \== B,
+%        not(member(edge(A,C,_),Visited)),
+%        travel(C,B,[edge(A,C,D) | Visited],Path,L1),
+%        L is D+L1.
+
+path(From, To, Path) :-
+    travel(From, To, [], Path).
+
+travel(To, To, Visited, Path) :-
+    reverse(Visited, Path),
+    !.
+
+travel(From, To, Visited, Path) :-
+    edge(From, X, Cost),
+    \+ member(edge(_, X, _), Visited),
+    travel(X,
+           To,
+           [edge(From, X, Cost)|Visited],
+           Path).

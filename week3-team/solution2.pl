@@ -8,14 +8,12 @@ cost([edge(_,_,C) | RestOfPath], Cost) :-
 
 shortestPath(F,T,Path) :-
        findall(path(F,T,Path), path(F,T,Path), List), % Berekent alle paden in 1 keer en zet ze in een list.
-       addCost(List,[]),
-       sort(List, Path).
-       %SortedList = [ Head | Tail],
-       %Path is Head.
+       addCost(List,ListWithCost),
+       sort(ListWithCost, [(Shortest,_)|_]),
+       Path = Shortest.
 
 addCost([],_).
 addCost([H | T], List) :-
        cost(H,Cost),
-       append([H], [Cost], Newlist),
-
-       addCost(T, Newlist).
+       append((Cost, H), List, NewList),
+       addCost(T, NewList).
