@@ -38,7 +38,6 @@ travel(From, To, Visited, Path) :-
            [travel(From, X, Cost)|Visited],
            Path).
 
-
 % "cost" berekent de kosten van een pad, door steeds de kost van een edge op te
 % tellen bij het totaal met behulp van recursie.
 cost([], 0).
