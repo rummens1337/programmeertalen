@@ -1,13 +1,11 @@
 % Namen: Thomas Vos, Michel Rummens
 % Studentnummers: 12829501, 13108093
 % In dit bestand staan predikaten die een pad tussen twee knopen berekenen.
-
 :- consult('graph.pl').
 
 % "path" fungeert als een soort "stepping stone" hier en roept alleen "travel"
 % aan met dezelfde argumenten + een lege lijst die uiteindelijk de lijst met
 % al bezochte kanten wordt.
-
 path(From, To, Path) :-
     travel(From, To, [], Path).
 
@@ -16,7 +14,6 @@ path(From, To, Path) :-
 % een al eerder bezochte knoop en dat From niet gelijk mag zijn aan To. Zodra
 % een edge is gevonden, gaat "travel" door met de uiterste knoop van die edge
 % met behulp van recursie, enzovoort.
-
 travel(X, Y, Visited, Path) :-
     X==Y,
     reverse(Visited, Path),
