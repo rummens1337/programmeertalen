@@ -1,3 +1,7 @@
+% Namen: Thomas Vos, Michel Rummens
+% Studentnummers: 12829501, 13108093
+% Dit bestand definieerd de edges van de graph van opdracht 1 en 2.
+
 :- begin_tests(solution1).
 
 test(path31, set(Path ==
