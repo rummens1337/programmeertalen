@@ -1,16 +1,19 @@
 #!/bin/bash
 
 OUTPUT_DIRECTORY="./team/hc-logs"
+NUMBER_OF_UNPACKS=6
 
-echo "make plot of unpackfile1 - all 5 runs"
-echo "- final.pdf"
-gnuplot -e "set terminal pdf; \
-            set title 'Unpackfile 1'; \
-            plot '$OUTPUT_DIRECTORY/unpackfile1-run1.txt' with lines, \
-            '$OUTPUT_DIRECTORY/unpackfile1-run2.txt' with lines, \
-            '$OUTPUT_DIRECTORY/unpackfile1-run3.txt' with lines, \
-            '$OUTPUT_DIRECTORY/unpackfile1-run4.txt' with lines, \
-            '$OUTPUT_DIRECTORY/unpackfile1-run5.txt' with lines" >$OUTPUT_DIRECTORY/final.pdf
+for i in $(eval echo "{1..$NUMBER_OF_UNPACKS}"); do
+    echo "make plot of unpackfile $i"
+    echo "hc-unpack$i-runs.pdf"
+    gnuplot -e "set terminal pdf; \
+                set title 'Unpackfile $i'; \
+                plot '$OUTPUT_DIRECTORY/unpackfile$i-run1.txt' with lines, \
+                '$OUTPUT_DIRECTORY/unpackfile$i-run2.txt' with lines, \
+                '$OUTPUT_DIRECTORY/unpackfile$i-run3.txt' with lines, \
+                '$OUTPUT_DIRECTORY/unpackfile$i-run4.txt' with lines, \
+                '$OUTPUT_DIRECTORY/unpackfile$i-run5.txt' with lines" >$OUTPUT_DIRECTORY/hc-unpack$i-runs.pdf
+done
 
 # File with the average value and standard deviation of each of 6 runs
 # - result.dat
@@ -35,4 +38,4 @@ gnuplot -e "set terminal pdf; \
             set title 'average value'; \
             set boxwidth -2; \
             set xrange [0:7]; \
-            plot '$OUTPUT_DIRECTORY/result.dat' using 1:3:4:xtic(2) with boxerrorbars;" >$OUTPUT_DIRECTORY/average-value-data.pdf
+            plot '$OUTPUT_DIRECTORY/result.dat' using 1:3:4:xtic(2) with boxerrorbars;" >$OUTPUT_DIRECTORY/hc-average-values.pdf
