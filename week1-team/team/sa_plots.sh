@@ -3,16 +3,18 @@
 OUTPUT_DIRECTORY="./team/sa-logs"
 MAX_TEMPERATURE=(0 1 10 100 1000 10000)
 
+iterator=1
 for i in "${MAX_TEMPERATURE[@]}"; do
     echo "make plot of max temperature $i"
     echo "sa-temp$i-runs.pdf"
     gnuplot -e "set terminal pdf; \
             set title 'Max temp $i'; \
-            plot '$OUTPUT_DIRECTORY/unpackfile1-run1.txt' with lines, \
-            '$OUTPUT_DIRECTORY/unpackfile1-run2.txt' with lines, \
-            '$OUTPUT_DIRECTORY/unpackfile1-run3.txt' with lines, \
-            '$OUTPUT_DIRECTORY/unpackfile1-run4.txt' with lines, \
-            '$OUTPUT_DIRECTORY/unpackfile1-run5.txt' with lines" >$OUTPUT_DIRECTORY/sa-temp$i-runs.pdf
+            plot '$OUTPUT_DIRECTORY/unpackfile$iterator-run1.txt' with lines, \
+            '$OUTPUT_DIRECTORY/unpackfile$iterator-run2.txt' with lines, \
+            '$OUTPUT_DIRECTORY/unpackfile$iterator-run3.txt' with lines, \
+            '$OUTPUT_DIRECTORY/unpackfile$iterator-run4.txt' with lines, \
+            '$OUTPUT_DIRECTORY/unpackfile$iterator-run5.txt' with lines" >$OUTPUT_DIRECTORY/sa-temp$i-runs.pdf
+    iterator=$((iterator + 1))
 done
 
 # File with the average value and standard deviation of each of 6 runs
