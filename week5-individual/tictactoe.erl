@@ -5,8 +5,7 @@
 -include_lib("stdlib/include/qlc.hrl").
 
 %% API
--export([board_move/3, check_rows/1,
-	 current_player/1, next_turn/1]).
+-export([check_rows/1, current_player/1, valid_move/4]).
 
 -export([get_board/0, is_finished/0, move/2,
 	 print_board/0, print_board/1, restart/0, restart/1,
@@ -40,24 +39,10 @@ init(Board) -> {ok, Board}.
 
 restart() -> gen_server:call(?MODULE, restart).
 
-% restart(Board) ->
-%     gen_server:call(?MODULE, {restart, Board}).
-
-restart(_Board) ->
-    gen_server:call(?MODULE,
-		    {restart,
-		     [{0, 0, 2}, {0, 1, 1}, {0, 2, 2}, {1, 0, 2}, {1, 1, 1},
-		      {1, 2, 1}, {2, 0, 1}, {2, 2, 2}, {2, 1, 2}]}).
-
-move(X, Y) -> 
-    Board = get_board(),
-    board_move(X, Y, Board).
+restart(Board) ->
+    gen_server:call(?MODULE, {restart, Board}).
 
 get_board() -> gen_server:call(?MODULE, get_board).
-
-% show_board(Board) ->
-%     % Return board
-%     ok.
 
 %%%====================================================================
 %%% genserver
@@ -65,13 +50,13 @@ get_board() -> gen_server:call(?MODULE, get_board).
 
 handle_call({test, Value}, _From, Board) ->
     NewState = [Value | Board], {reply, NewState, NewState};
-% Set the new state to an empty board.
 handle_call(get_board, _From, Board) ->
     {reply, Board, Board};
 handle_call(restart, _From, _Board) -> {reply, [], []};
-% Set the new board as current state.
 handle_call({restart, NewBoard}, _From, _Board) ->
-    {reply, NewBoard, NewBoard}.
+    {reply, NewBoard, NewBoard};
+handle_call({move, Move}, _From, Board) ->
+    NewBoard = [Move | Board], {reply, ok, NewBoard}.
 
 handle_cast(restart, _State) -> {noreply, []}.
 
@@ -96,16 +81,14 @@ is_finished() ->
 	and (Length / (?MAX_MOVES) == 1).
 
 check_rows([]) -> false; % no combinations of 3 found.
+check_rows(List) when length(List) < 3 -> false;
 check_rows([{X1, Y1, P1}, {X2, Y2, P2}, {X3, Y3, P3}
 	    | Tail]) ->
     if (P1 == P2) and (P2 == P3) and
 	 ((X1 == X2) and (X2 == X3) or
 	    (Y1 == Y2) and (Y2 == Y3)) ->
 	   true;
-       true ->
-	   if length(Tail) > 3 -> check_rows(Tail);
-	      true -> false
-	   end
+       true -> check_rows(Tail)
     end.
 
 in_list([], _Board) -> false;
@@ -127,37 +110,40 @@ print_board() -> print_board(get_board()).
 print_board(Board) -> io:fwrite(show_board(Board)).
 
 show_board(Board) ->
-    print_row(Board, [{0, 0}, {0, 1}, {0, 2}]) ++
-      io_lib:format("---------~n", []) ++
-	print_row(Board, [{1, 0}, {1, 1}, {1, 2}]) ++
-	  io_lib:format("---------~n", []) ++
-	    print_row(Board, [{2, 0}, {2, 1}, {2, 2}]).
+    ok.
 
-print_row(_, []) -> io_lib:format("~n", []);
-print_row(Board, [H | T]) ->
-    Seperator = fun ([]) -> "";
-		    (_) -> " | "
-		end,
-    io_lib:format("~s", icon(H, Board) ++ Seperator(T) ++ print_row(Board, T)).
+move(X, Y)
+    when (X < (?MIN_MOVES)) or (X > (?MAX_MOVES)) or
+	   (Y < (?MIN_MOVES))
+	   or (Y > (?MAX_MOVES)) ->
+    not_valid;
 
-icon(_, []) -> " ";
-icon({PX, PY}, [{X, Y, P} | T]) ->
-    Icon = fun (1) -> "X";
-	       (0) -> "O"
-	   end,
-    if {PX, PY} == {X, Y} -> Icon(P);
-       true -> icon({PX, PY}, T)
+move(X, Y) ->
+    % {?PLAYERS, X, Y, Board}.
+    Valid = valid_move(?PLAYERS, X, Y, get_board()),
+    Val = if Valid ->
+		 gen_server:call(?MODULE, {move, {X, Y, 1}});
+	     true -> not_open
+	  end,
+    Finished = is_finished(),
+    Player = current_player(lists:nthtail(length(get_board())-1, get_board())),
+          if
+			    Val == not_open -> not_open;
+			    true ->
+			        if
+			            Finished -> {won, Player};
+			            true ->
+			                ok
+			            end
+			        end.
+
+    % gen_server:call(?MODULE, {move, {X,Y,1}}).
+
+valid_move([], _X, _Y, _Board) -> true;
+valid_move([P | Players], X, Y, Board) ->
+    NotValid = lists:member({X, Y, P}, Board),
+    if NotValid -> false;
+       true -> valid_move(Players, X, Y, Board)
     end.
-
-next_turn([]) -> 0;
-next_turn([{_, _, 1} | _]) -> 0;
-next_turn([{_, _, 0} | _]) -> 1.
-
-board_move(X, _, _) when X < 0 -> {not_open};
-board_move(X, _, _) when X > 2 -> {not_open};
-board_move(_, Y, _) when Y < 0 -> {not_open};
-board_move(_, Y, _) when Y > 2 -> {not_open};
-board_move(X, Y, Board) ->
-    lists:append([{X, Y, next_turn(Board)}]).
 
 current_player([{_, _, Player} | _]) -> Player.
