@@ -1,44 +1,62 @@
 -module(rooms).
 -behaviour(gen_server).
 
--export([start_link/0, start_link/1, print_board/0, print_board/1, show_board/1,
-     restart/0, restart/1, move/2, is_finished/0, get_board/0]).
-    
+%%% API
+-export([start_link/0, start_link/1, new_grid/2, get_wall/3, has_wall/4, add_wall/4]).
+
+%%% Genserver callbacks
 -export([init/1, handle_call/3, handle_cast/2,
          terminate/2, code_change/3]).
+
+%%% Internal functions - testing purposes.
+-export([wall_get/3, wall_has/4, wall_add/4]).
+
+%%%====================================================================
+%%% API
+%%%====================================================================
 
 % Starts with an empty board.
 start_link() ->
     start_link([]).
 
 % Starts with a preconfigured board.
-start_link(Board) ->
-    gen_server:start_link({local, ttt}, tictactoe, Board, []).
+start_link(Grid) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, Grid, []).
+
+new_grid(Width,Height) ->
+    gen_server:call(?MODULE, {new_grid, Width, Height}).
+
+get_wall(X, Y, Dir) ->
+    gen_server:call(?MODULE, {get_wall, X, Y, Dir}).
+
+has_wall(X, Y, Dir, Grid) ->
+    gen_server:call(?MODULE, {has_wall, X, Y, Dir, Grid}).
+
+add_wall(X, Y, Dir, Grid) ->
+    gen_server:call(?MODULE, {add_wall, X, Y, Dir, Grid}).
+
+
+%%%====================================================================
+%%% Genserver callbacks
+%%%====================================================================
 
 init(Board) -> {ok, Board}.
 
-%%% TODO: implement these functions.
-restart() ->
-    ok.
-
-restart(Board) ->
-    ok.
-
-move(X,Y) ->
-    ok.
-
-is_finished() ->
-    ok.
-
-get_board() ->
-    ok.
-
-show_board(Board) ->
-    ok.
-
-%%% TODO: Add the required calls.
 handle_call(terminate, _From, State) ->
-    {stop, normal, ok, State}.
+    {stop, normal, ok, State};
+handle_call({new_grid, Width, Height}, _From, _State) ->
+    Grid = {Width, Height, []},
+    {reply, Grid, Grid};
+handle_call({get_wall, X, Y, Dir}, _From, _State) ->
+    Wall = wall_get(X,Y,Dir),
+    {reply, Wall, Wall};
+handle_call({has_wall, X, Y, Dir, Grid}, _From, State) ->
+    HasWall = wall_has(X,Y,Dir,Grid),
+    {reply, HasWall, State};
+handle_call({add_wall, X, Y, Dir, Grid}, _From, _State) ->
+    Wall = wall_add(X,Y,Dir,Grid),
+    {reply, Wall, Wall}.
+% Action(reply/noreply), Response, Newstate
 
 handle_cast(restart, _State) ->
     {noreply, []}.
@@ -49,11 +67,42 @@ terminate(normal, _) ->
 code_change(_Old, State, _Extra) ->
     {ok, State}.
 
-% This is just a helper for in the REPL.
-print_board() ->
-    print_board(get_board()).
+%%%====================================================================
+%%% Internal functions
+%%%====================================================================
 
-% This allows you to test printing without the server working.
-print_board(Board) ->
-    io:fwrite(show_board(Board)).
+% Gets a wall at a certain X,Y,Dir position.
+wall_get(X,Y,Dir) when Dir == north ->
+    {{X,Y-1}, {X,Y}};
+wall_get(X,Y,Dir) when Dir == east ->
+    {{X,Y}, {X+1,Y}};
+wall_get(X,Y,Dir) when Dir == south ->
+    {{X,Y}, {X,Y+1}};
+wall_get(X,Y,Dir) when Dir == west ->
+    {{X-1,Y}, {X,Y}}.
 
+% Checks if wall is present in the Grid.
+wall_has(X,Y,Dir,Grid) ->
+    lists:member(wall_get(X,Y,Dir),element(3,Grid)).
+
+% Adds a wall to the grid.
+wall_add(X,Y,Dir,Grid) ->
+    {W,L,List} = Grid,
+    {W,L,[wall_get(X,Y,Dir) | List]}.
+
+% % This is just a helper for in the REPL.
+% print_board() ->
+%     print_board(get_board()).
+
+% % This allows you to test printing without the server working.
+% print_board(Board) ->
+%     io:fwrite(show_board(Board)).
+
+% help_me(Animal) ->
+% Talk = if Animal == cat  -> "meow";
+% Animal == beef -> "mooo";
+% Animal == dog  -> "bark";
+% Animal == tree -> "bark";
+% true -> "fgdadfgna"
+% end,
+% {Animal, "says " ++ Talk ++ "!"}.
