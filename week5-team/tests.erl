@@ -41,20 +41,20 @@ add_wall_test() ->
 % % So, | first vertical wall({-1, 0}, {0, 0}), then two spaces,
 % % then sec vertical wall({{0, 0}, {1, 0}}).
 % % Newline is required.
-% show_vlines_test() ->
-%     ?assertEqual(
-%         "|  |~n",
-%         rooms:show_vlines(0, {1, 1, [{{-1, 0}, {0, 0}}, {{0, 0}, {1, 0}}]})
-%     ),
-%     ?assertEqual("    ~n", rooms:show_vlines(0, {1, 1, []})). % No walls in this line.
+show_vlines_test() ->
+    ?assertEqual(
+        "|  |~n",
+        rooms:show_vlines(0, {1, 1, [{{-1, 0}, {0, 0}}, {{0, 0}, {1, 0}}]})
+    ),
+    ?assertEqual("    ~n", rooms:show_vlines(0, {1, 1, []})). % No walls in this line.
 
 % % So, '+' is a corner of a room and is always there. -- is a vertical wall.
 % % First test does not have any walls. So: a corner point, two spaces and a corner point.
 % % Second test has a wall. Therefore: a corner point, a wall(--) and another corner point.
 % % Newlines are also required.
 % show_hlines_test() ->
-%     ?assertEqual("+  +~n", rooms:show_hlines(0, {1, 1, [{{0, 0}, {0, 1}}]})),
-%     ?assertEqual("+--+~n", rooms:show_hlines(1, {1, 1, [{{0, 0}, {0, 1}}]})).
+    % ?assertEqual("+  +~n", rooms:show_hlines(0, {1, 1, [{{0, 0}, {0, 1}}]})),
+    % ?assertEqual("+--+~n", rooms:show_hlines(1, {1, 1, [{{0, 0}, {0, 1}}]})).
 
 % % Combining hlines and vlines we would get the following grid:
 % % rooms:print_grid({1, 1, [{{-1, 0}, {0, 0}}, {{0, 0}, {1, 0}}, {{0, 0}, {0, 1}}]}).

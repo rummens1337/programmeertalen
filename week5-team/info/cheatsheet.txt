@@ -1,0 +1,16 @@
+Walls worden op zo een manier opgebouwd
++     +     +     +
+  0,0 | 1,0   2,0  
++-----+-----+     +
+  0,1 | 1,1   2,1  
++     +     +     +
+  0,2 | 1,2   2,2  
++     +     +     +
+
+een bovenste muur van 0,0 zou dus zo worden:
+{0,-1},{0,0}
+
+Noordelijke muur    = {Y-1},{}
+Oostelijke muur     = {},{X+1}
+Zuidelijke muur     = {},{Y+1}
+Westelijke muur     = {X-1},{}

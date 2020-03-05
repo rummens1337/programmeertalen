@@ -2,14 +2,15 @@
 -behaviour(gen_server).
 
 %%% API
--export([start_link/0, start_link/1, new_grid/2, get_wall/3, has_wall/4, add_wall/4]).
+-export([start_link/0, start_link/1, new_grid/2, 
+        get_wall/3, has_wall/4, add_wall/4, show_vlines/2]).
 
 %%% Genserver callbacks
 -export([init/1, handle_call/3, handle_cast/2,
          terminate/2, code_change/3]).
 
 %%% Internal functions - testing purposes.
--export([wall_get/3, wall_has/4, wall_add/4]).
+-export([wall_get/3, wall_has/4, wall_add/4, vlines_show/2, get_walls/3]).
 
 %%%====================================================================
 %%% API
@@ -35,6 +36,9 @@ has_wall(X, Y, Dir, Grid) ->
 add_wall(X, Y, Dir, Grid) ->
     gen_server:call(?MODULE, {add_wall, X, Y, Dir, Grid}).
 
+show_vlines(Row, Grid) ->
+    gen_server:call(?MODULE, {show_vlines, Row}).
+
 
 %%%====================================================================
 %%% Genserver callbacks
@@ -55,7 +59,10 @@ handle_call({has_wall, X, Y, Dir, Grid}, _From, State) ->
     {reply, HasWall, State};
 handle_call({add_wall, X, Y, Dir, Grid}, _From, _State) ->
     Wall = wall_add(X,Y,Dir,Grid),
-    {reply, Wall, Wall}.
+    {reply, Wall, Wall};
+handle_call({show_vlines, Row, Grid}, _From, _State) ->
+    VLine = vlines_show(Row, Grid),
+    {reply, VLine, VLine}.
 % Action(reply/noreply), Response, Newstate
 
 handle_cast(restart, _State) ->
@@ -89,6 +96,18 @@ wall_has(X,Y,Dir,Grid) ->
 wall_add(X,Y,Dir,Grid) ->
     {W,L,List} = Grid,
     {W,L,[wall_get(X,Y,Dir) | List]}.
+
+% Format vertical lines for given row.
+vlines_show(Row, Grid) ->
+    get_walls(vertical, Row, element(3, Grid)).
+
+% Get walls for  vertical or horizontal.
+get_walls(vertical, Row, Grid) ->
+    Walls = [{{X1,Y1},{X2,Y2}} || {{X1,Y1},{X2,Y2}} <- Grid, X2 == Row],
+    Walls;
+get_walls(horizontal, Row, Grid) ->
+    [Walls] = [{{X1,Y1},{X2,Y2}} || {{X1,Y1},{X2,Y2}} <- Grid, Y2 == Row],
+    Walls.
 
 % % This is just a helper for in the REPL.
 % print_board() ->
