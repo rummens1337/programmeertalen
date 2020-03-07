@@ -4,7 +4,7 @@
 %%% API
 -export([start_link/0, start_link/1, new_grid/2,
         get_wall/3, has_wall/4, add_wall/4, show_vlines/2, show_hlines/2,
-        print_grid/1]).
+        print_grid/1, get_cell_walls/2]).
 
 %%% Genserver callbacks
 -export([init/1, handle_call/3, handle_cast/2,
@@ -37,8 +37,6 @@ has_wall(X, Y, Dir, Grid) ->
 add_wall(X, Y, Dir, Grid) ->
     gen_server:call(?MODULE, {add_wall, X, Y, Dir, Grid}).
 
-% prin
-
 % Prints all vertical lines of a row.
 show_vlines(Row, Grid) ->
     Max = element(1, Grid),
@@ -56,6 +54,13 @@ print_grid(Grid) ->
     Height = element(2, Grid),
     print_grid(Grid, 0, Height).
 
+% Gets all the walls from a cell.
+get_cell_walls(X, Y) ->
+    WallsUno = lists:append([wall_get(X, Y, north)], []),
+    WallsDos = lists:append([wall_get(X, Y, east)], WallsUno),
+    WallsTres = lists:append([wall_get(X, Y, south)], WallsDos),
+    WallsQuatro = lists:append([wall_get(X, Y, west)], WallsTres),
+    WallsQuatro.
 
 %%%====================================================================
 %%% Genserver callbacks
@@ -132,9 +137,9 @@ vlines_string(max, Grid, Row, Counter, String) ->
     Wall = wall_has(Row, NewCounter, east, Grid),
 
     case(Wall) of
-        true  -> NewString = String ++ "|\n",
+        true  -> NewString = String ++ "|~n",
               NewString;
-        false -> NewString = String ++ " \n",
+        false -> NewString = String ++ " ~n",
               NewString
     end.
 
@@ -159,7 +164,7 @@ hlines_counter(Grid, Row, Counter, Max, String) ->
     end.
 
 hlines_string(max, String) ->
-    NewString = String ++ "+\n",
+    NewString = String ++ "+~n",
     NewString.
 
 
@@ -179,17 +184,17 @@ hlines_string(notmax, Grid, Row, Counter, Max, String) ->
 print_grid(Grid, Counter, Height) ->
     case(Counter) of
         Height -> RowHor = show_hlines(Counter, Grid),
-                  io:format("~s", [RowHor]);
+                  io:fwrite(RowHor);
         _Rest  -> RowHor = show_hlines(Counter, Grid),
                   RowVer = show_vlines(Counter, Grid),
-                  io:format("~s", [RowHor]),
-                  io:format("~s", [RowVer]),
+                  io:fwrite(RowHor),
+                  io:fwrite(RowVer),
                   NewCounter = Counter + 1,
                   print_grid(Grid, NewCounter, Height)
 
     end.
 
-% Get walls for  vertical or horizontal. Not needed for the printgrid.
+% Get walls for vertical or horizontal. Not needed for the printgrid.
 get_walls(vertical, Row, Grid) ->
     Walls = [{{X1,Y1},{X2,Y2}} || {{X1,Y1},{X2,Y2}} <- Grid, X2 == Row],
     Walls;

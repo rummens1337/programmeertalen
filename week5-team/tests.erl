@@ -65,11 +65,11 @@ show_hlines_test() ->
 % % Then, you should extrapolate this for an NxM grid where N and M > 0
 
 
-% get_cell_walls_test() ->
-%     ?assertEqual([{{1,2},{2,2}},{{2,1},{2,2}},{{2,2},{2,3}},{{2,2},{3,2}}],
-%         lists:sort(rooms:get_cell_walls(2, 2))),
-%     ?assertEqual([{{6,9},{7,9}},{{7,8},{7,9}},{{7,9},{7,10}},{{7,9},{8,9}}],
-%         lists:sort(rooms:get_cell_walls(7, 9))).
+get_cell_walls_test() ->
+    ?assertEqual([{{1,2},{2,2}},{{2,1},{2,2}},{{2,2},{2,3}},{{2,2},{3,2}}],
+        lists:sort(rooms:get_cell_walls(2, 2))),
+    ?assertEqual([{{6,9},{7,9}},{{7,8},{7,9}},{{7,9},{7,10}},{{7,9},{8,9}}],
+        lists:sort(rooms:get_cell_walls(7, 9))).
 
 % get_all_walls_test() ->
 %     ?assertEqual(
