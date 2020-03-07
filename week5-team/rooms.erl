@@ -4,7 +4,7 @@
 %%% API
 -export([start_link/0, start_link/1, new_grid/2,
         get_wall/3, has_wall/4, add_wall/4, show_vlines/2, show_hlines/2,
-        print_grid/1, get_cell_walls/2]).
+        print_grid/1, get_cell_walls/2, get_all_walls/2, get_open_spots/1]).
 
 %%% Genserver callbacks
 -export([init/1, handle_call/3, handle_cast/2,
@@ -56,11 +56,16 @@ print_grid(Grid) ->
 
 % Gets all the walls from a cell.
 get_cell_walls(X, Y) ->
-    WallsUno = lists:append([wall_get(X, Y, north)], []),
-    WallsDos = lists:append([wall_get(X, Y, east)], WallsUno),
-    WallsTres = lists:append([wall_get(X, Y, south)], WallsDos),
-    WallsQuatro = lists:append([wall_get(X, Y, west)], WallsTres),
-    WallsQuatro.
+    Walls = [wall_get(X, Y, north)] ++ [wall_get(X, Y, east)] ++
+               [wall_get(X, Y, south)] ++ [wall_get(X, Y, west)],
+    Walls.
+
+get_all_walls(W, H) ->
+    Walls = get_all_walls(W, H, 0, 0, []),
+    lists:usort(Walls).
+
+get_open_spots(Grid) ->
+    get_all_walls(element(1, Grid), element(2, Grid)) -- element(3, Grid).
 
 %%%====================================================================
 %%% Genserver callbacks
@@ -192,6 +197,24 @@ print_grid(Grid, Counter, Height) ->
                   NewCounter = Counter + 1,
                   print_grid(Grid, NewCounter, Height)
 
+    end.
+
+% Gets a list of all walls.
+get_all_walls(W, H, 0, CountV, AllWalls) ->
+    case(CountV) of
+        H -> AllWalls;
+        _ -> Walls = get_walls_row(W, H, 0, CountV, AllWalls),
+             NewCounter = CountV + 1,
+             get_all_walls(W, H, 0, NewCounter, Walls)
+
+    end.
+
+get_walls_row(W, H, CountH, Y, AllWalls) ->
+    case(CountH) of
+        W -> AllWalls;
+        _ -> Walls = AllWalls ++ get_cell_walls(CountH, Y),
+             NewCounter = CountH + 1,
+             get_walls_row(W, H, NewCounter, Y, Walls)
     end.
 
 % Get walls for vertical or horizontal. Not needed for the printgrid.

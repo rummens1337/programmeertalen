@@ -71,30 +71,30 @@ get_cell_walls_test() ->
     ?assertEqual([{{6,9},{7,9}},{{7,8},{7,9}},{{7,9},{7,10}},{{7,9},{8,9}}],
         lists:sort(rooms:get_cell_walls(7, 9))).
 
-% get_all_walls_test() ->
-%     ?assertEqual(
-%         [ {{-1,0},{0,0}}
-%         , {{-1,1},{0,1}}
-%         , {{0,-1},{0,0}}
-%         , {{0,0},{0,1}}
-%         , {{0,0},{1,0}}
-%         , {{0,1},{0,2}}
-%         , {{0,1},{1,1}}
-%         ],
-%         lists:sort(rooms:get_all_walls(1, 2))
-%     ).
+get_all_walls_test() ->
+    ?assertEqual(
+        [ {{-1,0},{0,0}}
+        , {{-1,1},{0,1}}
+        , {{0,-1},{0,0}}
+        , {{0,0},{0,1}}
+        , {{0,0},{1,0}}
+        , {{0,1},{0,2}}
+        , {{0,1},{1,1}}
+        ],
+        lists:sort(rooms:get_all_walls(1, 2))
+    ).
 
-% get_open_spots_test() ->
-%     ?assertEqual(
-%         [{{-1,0},{0,0}},{{0,-1},{0,0}}],
-%         lists:sort(rooms:get_open_spots({1, 1, [{{0, 0}, {0, 1}}, {{0, 0}, {1, 0}}]}))
-%     ),
-%     ?assertEqual(
-%         [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}},{{1,-1},{1,0}}],
-%         lists:sort(rooms:get_open_spots((
-%             {2, 1, [{{1, 0}, {2, 0}}, {{0, 0}, {1, 0}}, {{1, 0}, {1, 1}}]}))
-%         )
-%     ).
+get_open_spots_test() ->
+    ?assertEqual(
+        [{{-1,0},{0,0}},{{0,-1},{0,0}}],
+        lists:sort(rooms:get_open_spots({1, 1, [{{0, 0}, {0, 1}}, {{0, 0}, {1, 0}}]}))
+    ),
+    ?assertEqual(
+        [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}},{{1,-1},{1,0}}],
+        lists:sort(rooms:get_open_spots((
+            {2, 1, [{{1, 0}, {2, 0}}, {{0, 0}, {1, 0}}, {{1, 0}, {1, 1}}]}))
+        )
+    ).
 
 % choose_random_wall_test() ->
 %     ?assertEqual(
