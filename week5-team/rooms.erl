@@ -132,9 +132,9 @@ vlines_string(max, Grid, Row, Counter, String) ->
     Wall = wall_has(Row, NewCounter, east, Grid),
 
     case(Wall) of
-        true  -> NewString = String ++ "|~n",
+        true  -> NewString = String ++ "|\n",
               NewString;
-        false -> NewString = String ++ " ~n",
+        false -> NewString = String ++ " \n",
               NewString
     end.
 
@@ -159,7 +159,7 @@ hlines_counter(Grid, Row, Counter, Max, String) ->
     end.
 
 hlines_string(max, String) ->
-    NewString = String ++ "+~n",
+    NewString = String ++ "+\n",
     NewString.
 
 
@@ -178,12 +178,12 @@ hlines_string(notmax, Grid, Row, Counter, Max, String) ->
 % Prints the full string-formatted grid.
 print_grid(Grid, Counter, Height) ->
     case(Counter) of
-        Height -> RowHor = show_hlines(Grid, Counter),
-                  io_lib:format("~p", [RowHor]);
-        _Rest  -> RowHor = show_hlines(Grid, Counter),
-                  RowVer = show_vlines(Grid, Counter),
-                  io_lib:format("~p", [RowHor]),
-                  io_lib:format("~p", [RowVer]),
+        Height -> RowHor = show_hlines(Counter, Grid),
+                  io:format("~s", [RowHor]);
+        _Rest  -> RowHor = show_hlines(Counter, Grid),
+                  RowVer = show_vlines(Counter, Grid),
+                  io:format("~s", [RowHor]),
+                  io:format("~s", [RowVer]),
                   NewCounter = Counter + 1,
                   print_grid(Grid, NewCounter, Height)
 
