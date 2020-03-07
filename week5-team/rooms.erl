@@ -3,7 +3,8 @@
 
 %%% API
 -export([start_link/0, start_link/1, new_grid/2,
-        get_wall/3, has_wall/4, add_wall/4, show_vlines/2]).
+        get_wall/3, has_wall/4, add_wall/4, show_vlines/2, show_hlines/2,
+        print_grid/1]).
 
 %%% Genserver callbacks
 -export([init/1, handle_call/3, handle_cast/2,
@@ -36,25 +37,24 @@ has_wall(X, Y, Dir, Grid) ->
 add_wall(X, Y, Dir, Grid) ->
     gen_server:call(?MODULE, {add_wall, X, Y, Dir, Grid}).
 
-% gen_server:call(?MODULE, {show_vlines, Row}). % onnodig hier aangezien je de grid meekrijgt.
+% prin
 
-% prints all vertical lines of a row.
+% Prints all vertical lines of a row.
 show_vlines(Row, Grid) ->
-    VerticalWalls =  get_walls(vertical, Row, element(3, Grid)),
     Max = element(1, Grid),
-    StringVlines = vlines_counter(VerticalWalls, 0, Max, ""),
-    io_lib:format("~p", [StringVlines]).
+    StringVlines = vlines_counter(Grid, Row, 0, Max, ""),
+    StringVlines.
 
-% prints all horizontal lines of a row.
+% Prints all horizontal lines of a row.
 show_hlines(Row, Grid) ->
-    HorizontalWalls =  get_walls(horizontal, Row, element(3, Grid)),
     Max = element(1, Grid),
-    StringHlines = hlines_counter(HorizontalWalls, 0, Max, ""),
-    io_lib:format("~p", [StringHlines]).
+    StringHlines = hlines_counter(Grid, Row, 0, Max, ""),
+    StringHlines.
 
-% prints the grid.
+% Prints the grid.
 print_grid(Grid) ->
-    ok.
+    Height = element(2, Grid),
+    print_grid(Grid, 0, Height).
 
 
 %%%====================================================================
@@ -81,20 +81,6 @@ handle_call({has_wall, X, Y, Dir, Grid}, _From, State) ->
 handle_call({add_wall, X, Y, Dir, Grid}, _From, _State) ->
     Wall = wall_add(X,Y,Dir,Grid),
     {reply, Wall, Wall}.
-
-% No gen_server needed for string function.
-
-% handle_call({show_vlines, Row, Grid}, _From, _State) -> % unfinished
-%     VLine = vlines_show(Row, Grid),
-%     {reply, VLine, VLine};
-
-% handle_call({show_hlines, Row, Grid}, _From, _State) -> % unfinished
-%     HLine = hlines_show(Row, Grid),
-%     {reply, HLine, HLine};
-
-% handle_call({print_grid, Grid}, _From, _State) -> % unfinished
-%     Grid = print_grid(Grid),
-%     {reply, Grid, Grid}.
 
 % Action(reply/noreply), Response, Newstate
 
@@ -134,46 +120,76 @@ wall_add(X,Y,Dir,Grid) ->
     {W,L,List} = Grid,
     {W,L,[wall_get(X,Y,Dir) | List]}.
 
-% Format vertical lines for given row.
-vlines_counter(VWalls, Counter, Max, String) ->
+% Formats vertical lines for given row.
+vlines_counter(Grid, Row, Counter, Max, String) ->
     case(Counter) of
-        Max -> vlines_string(max, VWalls, Counter, Max, String);
-        _   -> vlines_string(notmax, VWalls, Counter, Max, String)
+        Max -> vlines_string(max, Grid, Row, Counter, String);
+        _   -> vlines_string(notmax, Grid, Row, Counter, Max, String)
     end.
 
-vlines_string(max, VWalls, Counter, Max, String) ->
-    VWall = [{{X1,Y1},{X2,Y2}} || {{X1,Y1},{X2,Y2}} <- VWalls, (X1 == Counter,
-    X2 == Counter - 1) ; (X1 == Counter - 1, X2 == Counter)],
+vlines_string(max, Grid, Row, Counter, String) ->
+    NewCounter = Counter - 1,
+    Wall = wall_has(Row, NewCounter, east, Grid),
 
-    case(VWall) of
-        [] -> NewString = String ++ " ",
+    case(Wall) of
+        true  -> NewString = String ++ "|~n",
               NewString;
-        _  -> NewString = String ++ "|",
+        false -> NewString = String ++ " ~n",
               NewString
     end.
 
-vlines_string(notmax, VWalls, Counter, Max, String) ->
-    VWall = [{{X1,Y1},{X2,Y2}} || {{X1,Y1},{X2,Y2}} <- VWalls, (X1 == Counter,
-    X2 == Counter - 1) ; (X1 == Counter - 1, X2 == Counter)],
+vlines_string(notmax, Grid, Row, Counter, Max, String) ->
+    Wall = wall_has(Row, Counter, west, Grid),
 
-    case(VWall) of
-        [] -> NewString = String ++ "   ",
+    case(Wall) of
+    true  -> NewString = String ++ "|  ",
               NewCounter = Counter + 1,
-              vlines_counter(VWalls, NewCounter, Max, NewString);
-        _  -> NewString = String ++ "|  ",
+              vlines_counter(Grid, Row, NewCounter, Max, NewString);
+    false -> NewString = String ++ "   ",
               NewCounter = Counter + 1,
-              vlines_counter(VWalls, NewCounter, Max, NewString)
+              vlines_counter(Grid, Row, NewCounter, Max, NewString)
+
     end.
 
-% Format horizontal lines for given row.
-hlines_counter(HWalls, Counter, Max, String) ->
-    ok.
+% Formats horizontal lines for given row.
+hlines_counter(Grid, Row, Counter, Max, String) ->
+    case(Counter) of
+        Max -> hlines_string(max, String);
+        _   -> hlines_string(notmax, Grid, Row, Counter, Max, String)
+    end.
 
-hlines_string(max, VWalls, Counter, Max, String) -> ok;
+hlines_string(max, String) ->
+    NewString = String ++ "+~n",
+    NewString.
 
-hlines_string(_, VWalls, Counter, Max, String) -> ok.
 
-% Get walls for  vertical or horizontal.
+hlines_string(notmax, Grid, Row, Counter, Max, String) ->
+    Wall = wall_has(Row, Counter, south, Grid),
+
+    case(Wall) of
+    true  -> NewString = String ++ "+  ",
+             NewCounter = Counter + 1,
+             hlines_counter(Grid, Row, NewCounter, Max, NewString);
+    false -> NewString = String ++ "+--",
+             NewCounter = Counter + 1,
+             hlines_counter(Grid, Row, NewCounter, Max, NewString)
+    end.
+
+% Prints the full string-formatted grid.
+print_grid(Grid, Counter, Height) ->
+    case(Counter) of
+        Height -> RowHor = show_hlines(Grid, Counter),
+                  io_lib:format("~p", [RowHor]);
+        _Rest  -> RowHor = show_hlines(Grid, Counter),
+                  RowVer = show_vlines(Grid, Counter),
+                  io_lib:format("~p", [RowHor]),
+                  io_lib:format("~p", [RowVer]),
+                  NewCounter = Counter + 1,
+                  print_grid(Grid, NewCounter, Height)
+
+    end.
+
+% Get walls for  vertical or horizontal. Not needed for the printgrid.
 get_walls(vertical, Row, Grid) ->
     Walls = [{{X1,Y1},{X2,Y2}} || {{X1,Y1},{X2,Y2}} <- Grid, X2 == Row],
     Walls;

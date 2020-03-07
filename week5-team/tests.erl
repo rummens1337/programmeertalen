@@ -52,9 +52,9 @@ show_vlines_test() ->
 % % First test does not have any walls. So: a corner point, two spaces and a corner point.
 % % Second test has a wall. Therefore: a corner point, a wall(--) and another corner point.
 % % Newlines are also required.
-% show_hlines_test() ->
-    % ?assertEqual("+  +~n", rooms:show_hlines(0, {1, 1, [{{0, 0}, {0, 1}}]})),
-    % ?assertEqual("+--+~n", rooms:show_hlines(1, {1, 1, [{{0, 0}, {0, 1}}]})).
+show_hlines_test() ->
+    ?assertEqual("+  +~n", rooms:show_hlines(0, {1, 1, [{{0, 0}, {0, 1}}]})),
+    ?assertEqual("+--+~n", rooms:show_hlines(1, {1, 1, [{{0, 0}, {0, 1}}]})).
 
 % % Combining hlines and vlines we would get the following grid:
 % % rooms:print_grid({1, 1, [{{-1, 0}, {0, 0}}, {{0, 0}, {1, 0}}, {{0, 0}, {0, 1}}]}).
