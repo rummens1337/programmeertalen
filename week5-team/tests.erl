@@ -13,7 +13,6 @@
 -import(init, [stop/1]).
 
 run_tests() ->
-    rooms:start_link(),
     eunit:test(tests),
     stop(0).
 
