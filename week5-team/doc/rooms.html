@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Module rooms</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module rooms</h1>
+<ul class="index"><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+<p>Copyright © 2020 M. Rummens, T vos.</p>
+
+<p><b>Version:</b> 9000</p>
+<p><b>Authors:</b> Michel Rummens (<a href="mailto:13108093"><tt>13108093</tt></a>), Thomas vos (<a href="mailto:12829501"><tt>12829501</tt></a>).</p>
+
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#add_wall-4">add_wall/4</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#build_random_wall-1">build_random_wall/1</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#build_wall-1">build_wall/1</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#choose_random_wall-1">choose_random_wall/1</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#get_all_walls-2">get_all_walls/2</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#get_cell_walls-2">get_cell_walls/2</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#get_completable_wall-1">get_completable_wall/1</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#get_completable_walls-1">get_completable_walls/1</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#get_open_cell_walls-3">get_open_cell_walls/3</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#get_open_spots-1">get_open_spots/1</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#get_wall-3">get_wall/3</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#has_wall-4">has_wall/4</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#new_grid-2">new_grid/2</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#print_grid-1">print_grid/1</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#show_hlines-2">show_hlines/2</a></td><td>.</td></tr>
+<tr><td valign="top"><a href="#show_vlines-2">show_vlines/2</a></td><td>.</td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="add_wall-4">add_wall/4</a></h3>
+<div class="spec">
+<p><tt>add_wall(X, Y, Dir, Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Adds a wall to the grid.</p>
+ <p>Param:         Int X: x-coordinate of the cell.</p>
+ <p>Param:         Int Y: y-coordinate of the cell.</p>
+ <p>Param:         Atom Dir: direction.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       A new grid, with the added wall.</p></p>
+
+<h3 class="function"><a name="build_random_wall-1">build_random_wall/1</a></h3>
+<div class="spec">
+<p><tt>build_random_wall(Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Builds a random wall in the grid.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       The new grid, with the random wall added.</p></p>
+
+<h3 class="function"><a name="build_wall-1">build_wall/1</a></h3>
+<div class="spec">
+<p><tt>build_wall(Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Build a completable wall, otherwise build random wall.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       Grid with extra element in list of walls.</p></p>
+
+<h3 class="function"><a name="choose_random_wall-1">choose_random_wall/1</a></h3>
+<div class="spec">
+<p><tt>choose_random_wall(Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Chooses a random open wall from the grid.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       A random open wall.</p></p>
+
+<h3 class="function"><a name="get_all_walls-2">get_all_walls/2</a></h3>
+<div class="spec">
+<p><tt>get_all_walls(W, H) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Creates a list with all possible walls in the grid.</p>
+ <p>Param:         Int W: width of the grid.</p>
+ <p>Param:         Int H: the height of the grid.</p>
+ <p>Returns:       A list of all possible walls in a grid, without duplicates.</p></p>
+
+<h3 class="function"><a name="get_cell_walls-2">get_cell_walls/2</a></h3>
+<div class="spec">
+<p><tt>get_cell_walls(X, Y) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Finds all the walls for specific X,Y cell.</p>
+ <p>Param:         Int X: x-coordinate of the cell.</p>
+ <p>Param:         Int Y: y-coordinate of the cell.</p>
+ <p>Returns:       List of all adjacent walls of a cell.</p></p>
+
+<h3 class="function"><a name="get_completable_wall-1">get_completable_wall/1</a></h3>
+<div class="spec">
+<p><tt>get_completable_wall(Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Get the first completable wall.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       The first completable wall on success or
+                   false if no completable walls are found.</p></p>
+
+<h3 class="function"><a name="get_completable_walls-1">get_completable_walls/1</a></h3>
+<div class="spec">
+<p><tt>get_completable_walls(Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Computes a list of all the completable walls of a grid.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       A list of completable walls.</p></p>
+
+<h3 class="function"><a name="get_open_cell_walls-3">get_open_cell_walls/3</a></h3>
+<div class="spec">
+<p><tt>get_open_cell_walls(X, Y, Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Computes a list of open walls for a given cell (X,Y).</p>
+ <p>Param:         Int X: x-coordinate of the cell.</p>
+ <p>Param:         Int Y: y-coordinate of the cell.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       A list of open walls for a given cell.</p></p>
+
+<h3 class="function"><a name="get_open_spots-1">get_open_spots/1</a></h3>
+<div class="spec">
+<p><tt>get_open_spots(Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Creates a list of open spots in the grid.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       A list of all open spots (no walls) in a grid.</p></p>
+
+<h3 class="function"><a name="get_wall-3">get_wall/3</a></h3>
+<div class="spec">
+<p><tt>get_wall(X, Y, Dir) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Gets the north, east, south or west wall of a cell.</p>
+ <p>Param:         Int X: x-coordinate of the cell.</p>
+ <p>Param:         Int Y: y-coordinate of the cell.</p>
+ <p>Param:         Atom Dir: direction.</p>
+ <p>Returns:       The wall, represented as being between two coordinates -&gt; {{0,0},{-1,0}}.</p></p>
+
+<h3 class="function"><a name="has_wall-4">has_wall/4</a></h3>
+<div class="spec">
+<p><tt>has_wall(X, Y, Dir, Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Checks if the specified wall exists.</p>
+ <p>Param:         Int X: x-coordinate of the cell.</p>
+ <p>Param:         Int Y: y-coordinate of the cell.</p>
+ <p>Param:         Atom Dir: direction.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       Atom true if the specified wall exists, otherwise the atom false.</p></p>
+
+<h3 class="function"><a name="new_grid-2">new_grid/2</a></h3>
+<div class="spec">
+<p><tt>new_grid(Width, Height) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Initializes a new grid.</p>
+ <p>Param:         Int Width: width of the grid.</p>
+ <p>Param:         Int Height: height of the grid.</p>
+ <p>Returns:       A tuple with the width, height and empty list for walls of the grid.</p></p>
+
+<h3 class="function"><a name="print_grid-1">print_grid/1</a></h3>
+<div class="spec">
+<p><tt>print_grid(Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Calls print_grid/3 with the correct arguments.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       Calls print_grid/3, which prints the grid.</p></p>
+
+<h3 class="function"><a name="show_hlines-2">show_hlines/2</a></h3>
+<div class="spec">
+<p><tt>show_hlines(Row, Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Calls hlines_counter with the specified argument,
+                   and returns the final string.</p>
+ <p>Param:         Int Row: rownumber.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       Formatted string of the horizontal lines of Row.</p></p>
+
+<h3 class="function"><a name="show_vlines-2">show_vlines/2</a></h3>
+<div class="spec">
+<p><tt>show_vlines(Row, Grid) -&gt; any()</tt></p>
+</div><p>
+ <p>Description:   Calls vlines_counter with the specified argument,
+                   and returns the final string.</p>
+ <p>Param:         Int Row: rownumber.</p>
+ <p>Param:         Tuple Grid: the grid {width, height, list of walls}.</p>
+ <p>Returns:       Formatted string of the vertical lines of Row.</p></p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc</i></p>
+</body>
+</html>
