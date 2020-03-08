@@ -14,7 +14,8 @@
 -export([start_link/0, start_link/1, new_grid/2,
         get_wall/3, has_wall/4, add_wall/4, show_vlines/2, show_hlines/2,
         print_grid/1, get_cell_walls/2, get_all_walls/2, get_open_spots/1,
-        choose_random_wall/1, build_random_wall/1, get_open_cell_walls/3]).
+        choose_random_wall/1, build_random_wall/1, get_open_cell_walls/3,
+        get_completable_walls/1, get_completable_wall/1, build_wall/1]).
 
 %%% Genserver callbacks
 -export([init/1, handle_call/3, handle_cast/2,
@@ -42,7 +43,7 @@ start_link(Grid) ->
 new_grid(Width,Height) ->
    {Width, Height, []}.
 
-%  @doc 
+%  @doc
 get_wall(X,Y,Dir) when Dir == north ->
     {{X,Y-1}, {X,Y}};
 get_wall(X,Y,Dir) when Dir == east ->
@@ -56,8 +57,8 @@ has_wall(X, Y, Dir, Grid) ->
     lists:member(get_wall(X,Y,Dir),element(3,Grid)).
 
 add_wall(X, Y, Dir, Grid) ->
-        {W,L,List} = Grid,
-    {W,L,[get_wall(X,Y,Dir) | List]}.
+        {W,H,List} = Grid,
+    {W,H,[get_wall(X,Y,Dir) | List]}.
 
 % Prints all vertical lines of a row.
 show_vlines(Row, Grid) ->
@@ -101,11 +102,11 @@ choose_random_wall(Grid) ->
 
 % Builds a random wall in the grid.
 build_random_wall(Grid) ->
-    {W, L, List} = Grid,
+    {W, H, List} = Grid,
     Wall = choose_random_wall(Grid),
     case(Wall) of
         [] -> no_build;
-        _  -> {W,L,lists:usort([Wall | List])}
+        _  -> {W,H,lists:usort([Wall | List])}
         end.
 
 % Returns a list of open walls for a given cell (X,Y).
@@ -115,12 +116,29 @@ get_open_cell_walls(X,Y,Grid) ->
     lists:sort([Elm || Elm <- Dirs, not(lists:member(Elm, element(3,Grid)))]).
 
 % Returns a list of completable walls from the Grid.
-get_completable_walls(Grid) -> 
+get_completable_walls(Grid) ->
+    {W,H,_List} = Grid,
+   lists:flatten([get_open_cell_walls(X,Y, Grid)
+                    || {X,Y} <- [XY
+                    || XY <- lists:flatten([lists:zip(lists:duplicate(W, N), lists:seq(0, H-1))
+                    || N <- lists:seq(0, W-1)])], length(get_open_cell_walls(X,Y, Grid)) == 1]).
+
+get_completable_wall(Grid) ->
+    Walls = get_completable_walls(Grid),
+    case(Walls) of 
+        [] -> false;
+        _  -> [H|_T] = Walls, H
+    end.
+
+build_wall(Grid) ->
     {W,H,List} = Grid,
-    lists:zip(lists:seq(0, W), lists:seq(0, H)).
-    % Coords = [{0,0},{1,0},{2,0},{0,1},{1,1},{2,1},{0,2},{1,2},{2,2}].
+    Completable = get_completable_wall(Grid),
+    case(Completable) of
+        false -> build_random_wall(Grid);
+        _     -> {W,H,lists:usort([Completable | List])}
+        end.
 
-
+    
 
 %%%====================================================================
 %%% Genserver callbacks
