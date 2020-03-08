@@ -39,6 +39,9 @@ start_link() ->
 start_link(Grid) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Grid, []).
 
+% @doc      Calls the start_link/1 func with [].
+% @param    Grid to be used for initialization.
+% @return   {ok, <PID of genserver>} on success.
 init(Grid) -> {ok, Grid}.
 
 new_grid(Width,Height) ->
