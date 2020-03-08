@@ -1,11 +1,10 @@
 %%%====================================================================
-%% author: Michel Rummens
-%% studentnumber: 13108093
-%%
-%% author: Thomas vos
-%% studentnumber: 12829501
-%%
-%% Cheap rooms for sale, five bucks a night!
+% @author Michel Rummens <13108093>
+% @author Thomas vos <12829501>
+% @copyright 2020 M. Rummens, T vos.
+% @version 9000
+% @title Welcome to the `Dots & Boxes' application!
+% @doc `Dots & Boxes' is a simulated game versus a computer.
 %%%====================================================================
 
 -module(rooms).
@@ -36,23 +35,18 @@ start_link() ->
 start_link(Grid) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Grid, []).
 
-% Initializes a new grid.
+init(Grid) -> {ok, Grid}.
+
 new_grid(Width,Height) ->
    {Width, Height, []}.
 
-% Gets the north wall of the cell at spot.
+%  @doc
 get_wall(X,Y,Dir) when Dir == north ->
     {{X,Y-1}, {X,Y}};
-
-% Gets the east wall of a cell.
 get_wall(X,Y,Dir) when Dir == east ->
     {{X,Y}, {X+1,Y}};
-
-% Gets the south wall of a cell.
 get_wall(X,Y,Dir) when Dir == south ->
     {{X,Y}, {X,Y+1}};
-
-% Gets the west wall of a cell.
 get_wall(X,Y,Dir) when Dir == west ->
     {{X-1,Y}, {X,Y}}.
 
@@ -121,10 +115,10 @@ get_open_cell_walls(X,Y,Grid) ->
     lists:sort([Elm || Elm <- Dirs, not(lists:member(Elm, element(3,Grid)))]).
 
 % Returns a list of completable walls from the Grid.
-% get_completable_walls(Grid) ->
+get_completable_walls(Grid) ->
 
-%     Coords = [{0,0},{1,0},{2,0},{0,1},{1,1},{2,1},{0,2},{1,2},{2,2}].
-%     {W,L,List} = Grid,
+    Coords = [{0,0},{1,0},{2,0},{0,1},{1,1},{2,1},{0,2},{1,2},{2,2}].
+    {W,L,List} = Grid,
 
 
 
@@ -246,7 +240,7 @@ get_walls(horizontal, Row, Grid) ->
     Walls = [{{X1,Y1},{X2,Y2}} || {{X1,Y1},{X2,Y2}} <- Grid, Y2 == Row],
     Walls.
 
-% retrieve_completeable_walls(Grid, Completable, Coordinates) ->
-%     case(Iterator) of
-%         0 -> Completable;
-%         _ -> get
+retrieve_completeable_walls(Grid, Completable, Coordinates) ->
+    case(Iterator) of
+        0 -> Completable;
+        _ -> get
