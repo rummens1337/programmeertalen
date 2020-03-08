@@ -39,8 +39,6 @@ start_link() ->
 start_link(Grid) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Grid, []).
 
-init(Grid) -> {ok, Grid}.
-
 new_grid(Width,Height) ->
    {Width, Height, []}.
 
@@ -118,9 +116,9 @@ get_open_cell_walls(X,Y,Grid) ->
 
 % Returns a list of completable walls from the Grid.
 get_completable_walls(Grid) -> 
-
-    Coords = [{0,0},{1,0},{2,0},{0,1},{1,1},{2,1},{0,2},{1,2},{2,2}].
-    {W,L,List} = Grid,
+    {W,H,List} = Grid,
+    lists:zip(lists:seq(0, W), lists:seq(0, H)).
+    % Coords = [{0,0},{1,0},{2,0},{0,1},{1,1},{2,1},{0,2},{1,2},{2,2}].
 
 
 
@@ -242,7 +240,7 @@ get_walls(horizontal, Row, Grid) ->
     Walls = [{{X1,Y1},{X2,Y2}} || {{X1,Y1},{X2,Y2}} <- Grid, Y2 == Row],
     Walls.
 
-retrieve_completeable_walls(Grid, Completable, Coordinates) ->
-    case(Iterator) of
-        0 -> Completable;
-        _ -> get
+% retrieve_completeable_walls(Grid, Completable, Coordinates) ->
+%     case(Iterator) of
+%         0 -> Completable;
+%         _ -> get
