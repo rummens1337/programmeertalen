@@ -27,6 +27,22 @@
 %%% API
 %%%====================================================================
 
+start(Width, Height) ->
+    Grid = new_grid(Width, Height),
+
+    <<S1:32, S2:32, S3:32>> = crypto:strong_rand_bytes(12),
+    RandSeed = rand:seed(exs1024,{S1, S2, S3}),
+
+    spawn(rooms, start, [RandSeed])
+
+    register(cpu2, spawn(rooms, cpu1, [])),
+
+    spawn(rooms, cpu1, [0,0, get_completable_walls(Grid), new_grid(3,3)]).
+
+cpu1() ->
+
+cpu2() ->
+
 % @doc      Calls the start_link/1 func with [].
 % @param    None.
 % @returns  None.
