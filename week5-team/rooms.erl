@@ -27,11 +27,15 @@
 %%% API
 %%%====================================================================
 
-% Starts with an empty board.
+% @doc      Calls the start_link/1 func with [].
+% @param    none
+% @return   none
 start_link() ->
     start_link([]).
 
-% Starts with a preconfigured board.
+% @doc      Calls the start_link/1 func with [].
+% @param    Grid to be used for initialization.
+% @return   {ok, <PID of genserver>} on success.
 start_link(Grid) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Grid, []).
 
