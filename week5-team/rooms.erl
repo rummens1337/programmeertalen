@@ -151,7 +151,7 @@ vlines_counter(Grid, Row, Counter, Max, String) ->
 
 vlines_string(max, Grid, Row, Counter, String) ->
     NewCounter = Counter - 1,
-    Wall = has_wall(Row, NewCounter, east, Grid),
+    Wall = has_wall(NewCounter, Row, east, Grid),
 
     case(Wall) of
         true  -> NewString = String ++ "|~n",
@@ -161,7 +161,7 @@ vlines_string(max, Grid, Row, Counter, String) ->
     end.
 
 vlines_string(notmax, Grid, Row, Counter, Max, String) ->
-    Wall = has_wall(Row, Counter, west, Grid),
+    Wall = has_wall(Counter, Row, west, Grid),
 
     case(Wall) of
     true  -> NewString = String ++ "|  ",
@@ -186,13 +186,13 @@ hlines_string(max, String) ->
 
 
 hlines_string(notmax, Grid, Row, Counter, Max, String) ->
-    Wall = has_wall(Row, Counter, south, Grid),
+    Wall = has_wall(Counter, Row, north, Grid),
 
     case(Wall) of
-    true  -> NewString = String ++ "+  ",
+    false -> NewString = String ++ "+  ",
              NewCounter = Counter + 1,
              hlines_counter(Grid, Row, NewCounter, Max, NewString);
-    false -> NewString = String ++ "+--",
+    true  -> NewString = String ++ "+--",
              NewCounter = Counter + 1,
              hlines_counter(Grid, Row, NewCounter, Max, NewString)
     end.
