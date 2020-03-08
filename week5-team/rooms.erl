@@ -36,24 +36,31 @@ start_link() ->
 start_link(Grid) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Grid, []).
 
+% Initializes a new grid.
 new_grid(Width,Height) ->
    {Width, Height, []}.
 
+% Gets the north wall of the cell at spot.
 get_wall(X,Y,Dir) when Dir == north ->
     {{X,Y-1}, {X,Y}};
 
+% Gets the east wall of a cell.
 get_wall(X,Y,Dir) when Dir == east ->
     {{X,Y}, {X+1,Y}};
 
+% Gets the south wall of a cell.
 get_wall(X,Y,Dir) when Dir == south ->
     {{X,Y}, {X,Y+1}};
 
+% Gets the west wall of a cell.
 get_wall(X,Y,Dir) when Dir == west ->
     {{X-1,Y}, {X,Y}}.
 
+% Returns true if the specified wall exists.
 has_wall(X, Y, Dir, Grid) ->
     lists:member(get_wall(X,Y,Dir),element(3,Grid)).
 
+% Returns
 add_wall(X, Y, Dir, Grid) ->
         {W,L,List} = Grid,
     {W,L,[get_wall(X,Y,Dir) | List]}.
@@ -81,16 +88,16 @@ get_cell_walls(X, Y) ->
                [get_wall(X, Y, south)] ++ [get_wall(X, Y, west)],
     Walls.
 
-% Returns a list with all possible walls in the Grid.
+% Returns a list with all possible walls in the grid.
 get_all_walls(W, H) ->
     Walls = get_all_walls(W, H, 0, 0, []),
     lists:usort(Walls).
 
-% Returns a list of open spots in the Grid.
+% Returns a list of open spots in the grid.
 get_open_spots(Grid) ->
     get_all_walls(element(1, Grid), element(2, Grid)) -- element(3, Grid).
 
-% Returns a random open wall from the Grid.
+% Returns a random open wall from the grid.
 choose_random_wall(Grid) ->
     Open = get_open_spots(Grid),
     case(Open) of
@@ -115,6 +122,7 @@ get_open_cell_walls(X,Y,Grid) ->
 
 % Returns a list of completable walls from the Grid.
 % get_completable_walls(Grid) ->
+
 %     Coords = [{0,0},{1,0},{2,0},{0,1},{1,1},{2,1},{0,2},{1,2},{2,2}].
 %     {W,L,List} = Grid,
 
