@@ -42,15 +42,15 @@ start_link(Grid) ->
 % @doc      Initializes a new grid.
 % @param    Int Width: width of the grid.
 % @param    Int Height: height of the grid.
-% @returns  A tuple with the width, height and list of walls of the grid.
+% @returns  A tuple with the width, height and empty list for walls of the grid.
 new_grid(Width,Height) ->
    {Width, Height, []}.
 
 % @doc      Gets the north, east, south or west wall of a cell.
 % @param    Int X: x-coordinate of the cell.
-% @param    Int Y: coordinates of the cell.
+% @param    Int Y: y-coordinate of the cell.
 % @param    Atom Dir: direction.
-% @returns  The wall, represented as being between two coordinates (tuples).
+% @returns  The wall, represented as being between two coordinates -> {{0,0},{-1,0}}.
 get_wall(X,Y,Dir) when Dir == north ->
     {{X,Y-1}, {X,Y}};
 get_wall(X,Y,Dir) when Dir == east ->
@@ -60,20 +60,20 @@ get_wall(X,Y,Dir) when Dir == south ->
 get_wall(X,Y,Dir) when Dir == west ->
     {{X-1,Y}, {X,Y}}.
 
-% @doc      Looks if the specified wall exists.
+% @doc      Checks if the specified wall exists.
 % @param    Int X: x-coordinate of the cell.
-% @param    Int Y: coordinates of the cell.
+% @param    Int Y: y-coordinate of the cell.
 % @param    Atom Dir: direction.
-% @param    Grid: the grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @returns  Atom true if the specified wall exists, otherwise the atom false.
 has_wall(X, Y, Dir, Grid) ->
     lists:member(get_wall(X,Y,Dir),element(3,Grid)).
 
 % @doc      Adds a wall to the grid.
 % @param    Int X: x-coordinate of the cell.
-% @param    Int Y: coordinates of the cell.
+% @param    Int Y: y-coordinate of the cell.
 % @param    Atom Dir: direction.
-% @param    Grid: the grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @returns  A new grid, with the added wall.
 add_wall(X, Y, Dir, Grid) ->
         {W,H,List} = Grid,
@@ -81,9 +81,9 @@ add_wall(X, Y, Dir, Grid) ->
 
 % @doc      Calls vlines_counter with the specified argument, and returns the
 %           final string.
-% @param    Int Row as rownumber.
-% @param    Grid: grid {width, height, walls}.
-% @returns  StringVlines: formatted string of the vertical lines of Row.
+% @param    Int Row: rownumber.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
+% @returns  Formatted string of the vertical lines of Row.
 show_vlines(Row, Grid) ->
     Max = element(1, Grid),
     StringVlines = vlines_counter(Grid, Row, 0, Max, ""),
@@ -91,31 +91,31 @@ show_vlines(Row, Grid) ->
 
 % @doc      Calls hlines_counter with the specified argument, and returns the
 %           final string.
-% @param    Int Row as rownumber.
-% @param    Grid: grid {width, height, walls}.
-% @returns  StringHlines: formatted string of the horizontal lines of Row.
+% @param    Int Row: rownumber.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
+% @returns  Formatted string of the horizontal lines of Row.
 show_hlines(Row, Grid) ->
     Max = element(1, Grid),
     StringHlines = hlines_counter(Grid, Row, 0, Max, ""),
     StringHlines.
 
 % @doc      Calls print_grid/3 with the correct arguments.
-% @param    Grid: grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @returns  Calls print_grid/3, which prints the grid.
 print_grid(Grid) ->
     Height = element(2, Grid),
     print_grid(Grid, 0, Height).
 
-% @doc      Gets all the walls from a cell.
+% @doc      Finds all the walls for specific X,Y cell.
 % @param    Int X: x-coordinate of the cell.
-% @param    Int Y: coordinates of the cell.
-% @returns  Walls: list of all adjacent walls of a cell.
+% @param    Int Y: y-coordinate of the cell.
+% @returns  List of all adjacent walls of a cell.
 get_cell_walls(X, Y) ->
     Walls = [get_wall(X, Y, north)] ++ [get_wall(X, Y, east)] ++
                [get_wall(X, Y, south)] ++ [get_wall(X, Y, west)],
     Walls.
 
-% @doc      Calculates a list with all possible walls in the grid.
+% @doc      Creates a list with all possible walls in the grid.
 % @param    Int W: width of the grid.
 % @param    Int H: the height of the grid.
 % @returns  A list of all possible walls in a grid, without duplicates.
@@ -123,14 +123,14 @@ get_all_walls(W, H) ->
     Walls = get_all_walls(W, H, 0, []),
     lists:usort(Walls).
 
-% @doc      Calculates a list of open spots in the grid.
-% @param    Grid: grid {width, height, walls}.
-% @returns  A list of all open spots (no wall) in a grid.
+% @doc      Creates a list of open spots in the grid.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
+% @returns  A list of all open spots (no walls) in a grid.
 get_open_spots(Grid) ->
     get_all_walls(element(1, Grid), element(2, Grid)) -- element(3, Grid).
 
 % @doc      Chooses a random open wall from the grid.
-% @param    Grid: grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @returns  A random open wall.
 choose_random_wall(Grid) ->
     Open = get_open_spots(Grid),
@@ -140,7 +140,7 @@ choose_random_wall(Grid) ->
     end.
 
 % @doc      Builds a random wall in the grid.
-% @param    Grid: grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @returns  The new grid, with the random wall added.
 build_random_wall(Grid) ->
     {W, H, List} = Grid,
@@ -152,8 +152,8 @@ build_random_wall(Grid) ->
 
 % @doc      Computes a list of open walls for a given cell (X,Y).
 % @param    Int X: x-coordinate of the cell.
-% @param    Int Y: coordinates of the cell.
-% @param    Grid: grid {width, height, walls}.
+% @param    Int Y: y-coordinate of the cell.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @returns  A list of open walls for a given cell.
 get_open_cell_walls(X,Y,Grid) ->
     Dirs = [get_wall(X,Y, north),get_wall(X,Y, east),
@@ -161,8 +161,8 @@ get_open_cell_walls(X,Y,Grid) ->
     lists:sort([Elm || Elm <- Dirs, not(lists:member(Elm, element(3,Grid)))]).
 
 % @doc      Computes a list of all the completable walls of a grid.
-% @param    Grid: grid {width, height, walls}.
-% @returns  A list of completable walls from the grid.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
+% @returns  A list of completable walls.
 get_completable_walls(Grid) ->
     {W,H,_List} = Grid,
    lists:flatten([get_open_cell_walls(X,Y, Grid)
@@ -171,8 +171,8 @@ get_completable_walls(Grid) ->
                     || N <- lists:seq(0, W-1)])], length(get_open_cell_walls(X,Y, Grid)) == 1]).
 
 % @doc      Get the first completable wall.
-% @param    Grid: grid {width, height, walls}.
-% @returns  The first completable wall.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
+% @returns  The first completable wall on success or false if no completable walls are found.
 get_completable_wall(Grid) ->
     Walls = get_completable_walls(Grid),
     case(Walls) of
@@ -180,9 +180,9 @@ get_completable_wall(Grid) ->
         _  -> [H|_T] = Walls, H
     end.
 
-% @doc      Build a completable wall, otherwise return
-% @param    Grid: grid {width, height, walls}.
-% @returns  The first completable wall.
+% @doc      Build a completable wall, otherwise build random wall.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
+% @returns  Grid with extra element in list of walls.
 build_wall(Grid) ->
     {W,H,List} = Grid,
     Completable = get_completable_wall(Grid),
@@ -196,7 +196,7 @@ build_wall(Grid) ->
 %%%====================================================================
 
 % @doc      Initializes the grid (starting the game).
-% @param    Grid: grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @returns  {ok, the initialized grid}.
 init(Grid) -> {ok, Grid}.
 
@@ -236,7 +236,7 @@ code_change(_Old, State, _Extra) ->
 
 % @doc      Calls vlines_string with the correct arguments based on the state
 %           of the counter.
-% @param    Grid: grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @param    Int Row: rownumber.
 % @param    Int Counter: amount of iterations.
 % @param    Int Max: maximum number of iterations.
@@ -244,15 +244,14 @@ code_change(_Old, State, _Extra) ->
 % @returns  The final formatted string of the vertical lines of a row.
 vlines_counter(Grid, Row, Counter, Max, String) ->
     case(Counter) of
-        Max -> vlines_string(max, Grid, Row, Counter, String);
-        _   -> vlines_string(notmax, Grid, Row, Counter, Max, String)
+        Max -> vlines_string(Grid, Row, Counter, String);
+        _   -> vlines_string(Grid, Row, Counter, Max, String)
     end.
 
 % @doc      Formats a vertical wall to a string and adds it to the current
 %           string. If max is specified, the last part of the string will
 %           contain a ~n and the recursion will stop.
-% @param    The atom max/notmax.
-% @param    Grid: grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @param    Int Row: rownumber.
 % @param    Int Counter: amount of iterations.
 % @param    Int Max: maximum number of iterations.
@@ -260,7 +259,7 @@ vlines_counter(Grid, Row, Counter, Max, String) ->
 % @returns  Max: the final formatted string of the vertical lines of a row.
 %           Notmax: calls the function vlines_counter again with the new
 %           String, and therefore forms a recursion with two functions.
-vlines_string(max, Grid, Row, Counter, String) ->
+vlines_string(Grid, Row, Counter, String) ->
     NewCounter = Counter - 1,
     Wall = has_wall(NewCounter, Row, east, Grid),
 
@@ -271,7 +270,17 @@ vlines_string(max, Grid, Row, Counter, String) ->
               NewString
     end.
 
-vlines_string(notmax, Grid, Row, Counter, Max, String) ->
+% @doc      Formats a vertical wall to a string and adds it to the current
+%           string. The last part of the string will
+%           contain a ~n and the recursion will stop.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
+% @param    Int Row: rownumber.
+% @param    Int Counter: amount of iterations.
+% @param    Int Max: maximum number of iterations.
+% @param    String: formatted string.
+% @returns  Notmax: calls the function vlines_counter again with the new
+%           String, and therefore forms a recursion with two functions.
+vlines_string(Grid, Row, Counter, Max, String) ->
     Wall = has_wall(Counter, Row, west, Grid),
 
     case(Wall) of
@@ -286,12 +295,13 @@ vlines_string(notmax, Grid, Row, Counter, Max, String) ->
 
 % @doc      Calls hlines_string with the correct arguments based on the state
 %           of the counter.
-% @param    Grid: grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @param    Int Row: rownumber.
 % @param    Int Counter: amount of iterations.
 % @param    Int Max: maximum number of iterations.
 % @param    String: formatted string.
-% @returns  The final formatted string of the horizontal lines of a row.
+% @returns  Calls the function vlines_counter again with the new String,
+%           and therefore forms a recursion with two functions.
 hlines_counter(Grid, Row, Counter, Max, String) ->
     case(Counter) of
         Max -> hlines_string(String);
@@ -307,7 +317,7 @@ hlines_string(String) ->
 
 % @doc      Formats a horizontal wall to a string and adds it to the current
 %           string.
-% @param    Grid: grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @param    Int Row: rownumber.
 % @param    Int Counter: amount of iterations.
 % @param    Int Max: maximum number of iterations.
@@ -327,7 +337,7 @@ hlines_string(Grid, Row, Counter, Max, String) ->
     end.
 
 % @doc      Prints the full string-formatted grid.
-% @param    Grid: grid {width, height, walls}.
+% @param    Tuple Grid: the grid {width, height, list of walls}.
 % @param    Int Counter: current rownumber.
 % @param    Int Height: total height of the grid.
 % @returns  Recursively prints the grid until the last row is printed.
@@ -341,12 +351,11 @@ print_grid(Grid, Counter, Height) ->
                   io:fwrite(RowVer),
                   NewCounter = Counter + 1,
                   print_grid(Grid, NewCounter, Height)
-
     end.
 
 % @doc      Gets a list of all walls.
-% @param    int W: width.
-% @param    int H: height.
+% @param    int W: Width.
+% @param    int H: Height.
 % @param    int CountV: current rownumber.
 % @param    List AllWalls: list with all walls (Empty on first call).
 % @returns  A list of all possible walls in a grid, with duplicates.
@@ -360,8 +369,8 @@ get_all_walls(W, H, CountV, AllWalls) ->
     end.
 
 % @doc      Gets a list of all walls adjacent to all cells in a row.
-% @param    int W: width.
-% @param    int H: height.
+% @param    int W: Width.
+% @param    int H: Height.
 % @param    int CountV: current cellnumber.
 % @param    List AllWalls: list with all walls (Empty on first call).
 % @returns  A list of all possible walls adjacent to all cells in a row,
