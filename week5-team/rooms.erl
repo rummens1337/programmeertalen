@@ -5,8 +5,7 @@
 %% author: Thomas vos
 %% studentnumber: 12829501
 %%
-%% This module is a tic tac toe 
-%% for the rooms game.
+%% Cheap rooms for sale, five bucks a night!
 %%%====================================================================
 
 -module(rooms).
@@ -15,14 +14,15 @@
 %%% API
 -export([start_link/0, start_link/1, new_grid/2,
         get_wall/3, has_wall/4, add_wall/4, show_vlines/2, show_hlines/2,
-        print_grid/1, get_cell_walls/2, get_all_walls/2, get_open_spots/1]).
+        print_grid/1, get_cell_walls/2, get_all_walls/2, get_open_spots/1,
+        choose_random_wall/1, build_random_wall/1, get_open_cell_walls/3]).
 
 %%% Genserver callbacks
 -export([init/1, handle_call/3, handle_cast/2,
          terminate/2, code_change/3]).
 
 %%% Internal functions - testing purposes.
--export([get_wall/3, has_wall/4, wall_add/4, get_walls/3]).
+-export([get_walls/3]).
 
 %%%====================================================================
 %%% API
@@ -81,18 +81,50 @@ get_cell_walls(X, Y) ->
                [get_wall(X, Y, south)] ++ [get_wall(X, Y, west)],
     Walls.
 
+% Returns a list with all possible walls in the Grid.
 get_all_walls(W, H) ->
     Walls = get_all_walls(W, H, 0, 0, []),
     lists:usort(Walls).
 
+% Returns a list of open spots in the Grid.
 get_open_spots(Grid) ->
     get_all_walls(element(1, Grid), element(2, Grid)) -- element(3, Grid).
+
+% Returns a random open wall from the Grid.
+choose_random_wall(Grid) ->
+    Open = get_open_spots(Grid),
+    case(Open) of
+        []  -> [];
+        _ -> lists:nth(rand:uniform(length(Open)), Open)
+    end.
+
+% Builds a random wall in the grid.
+build_random_wall(Grid) ->
+    {W, L, List} = Grid,
+    Wall = choose_random_wall(Grid),
+    case(Wall) of
+        [] -> no_build;
+        _  -> {W,L,lists:usort([Wall | List])}
+        end.
+
+% Returns a list of open walls for a given cell (X,Y).
+get_open_cell_walls(X,Y,Grid) ->
+    Dirs = [get_wall(X,Y, north),get_wall(X,Y, east),
+            get_wall(X,Y, south),get_wall(X,Y, west)],
+    lists:sort([Elm || Elm <- Dirs, not(lists:member(Elm, element(3,Grid)))]).
+
+% Returns a list of completable walls from the Grid.
+% get_completable_walls(Grid) ->
+%     Coords = [{0,0},{1,0},{2,0},{0,1},{1,1},{2,1},{0,2},{1,2},{2,2}].
+%     {W,L,List} = Grid,
+
+
 
 %%%====================================================================
 %%% Genserver callbacks
 %%%====================================================================
 
-init(Board) -> {ok, Board}.
+init(Grid) -> {ok, Grid}.
 
 handle_call(terminate, _From, State) ->
     {stop, normal, ok, State}.
@@ -109,11 +141,6 @@ code_change(_Old, State, _Extra) ->
 %%%====================================================================
 %%% Internal functions
 %%%====================================================================
-
-% Adds a wall to the grid.
-wall_add(X,Y,Dir,Grid) ->
-    {W,L,List} = Grid,
-    {W,L,[get_wall(X,Y,Dir) | List]}.
 
 % Formats vertical lines for given row.
 vlines_counter(Grid, Row, Counter, Max, String) ->
@@ -211,3 +238,7 @@ get_walls(horizontal, Row, Grid) ->
     Walls = [{{X1,Y1},{X2,Y2}} || {{X1,Y1},{X2,Y2}} <- Grid, Y2 == Row],
     Walls.
 
+% retrieve_completeable_walls(Grid, Completable, Coordinates) ->
+%     case(Iterator) of
+%         0 -> Completable;
+%         _ -> get

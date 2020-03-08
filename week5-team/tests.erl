@@ -95,43 +95,43 @@ get_open_spots_test() ->
         )
     ).
 
-% choose_random_wall_test() ->
-%     ?assertEqual(
-%         [],
-%         rooms:choose_random_wall(
-%             {1, 1, [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}},{{0,0},{1,0}}]})
-%         ),
-%     ?assertEqual(
-%         {{0,0},{1,0}},
-%         rooms:choose_random_wall({1, 1, [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}}]})
-%     ).
+choose_random_wall_test() ->
+    ?assertEqual(
+        [],
+        rooms:choose_random_wall(
+            {1, 1, [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}},{{0,0},{1,0}}]})
+        ),
+    ?assertEqual(
+        {{0,0},{1,0}},
+        rooms:choose_random_wall({1, 1, [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}}]})
+    ).
 
-% build_random_wall_test() ->
-%     ?assertEqual(
-%         {1,1, [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}},{{0,0},{1,0}}]},
-%         rooms:build_random_wall({1, 1, [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}}]})
-%     ).
+build_random_wall_test() ->
+    ?assertEqual(
+        {1,1, [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}},{{0,0},{1,0}}]},
+        rooms:build_random_wall({1, 1, [{{-1,0},{0,0}},{{0,-1},{0,0}},{{0,0},{0,1}}]})
+    ).
 
-% get_open_cell_walls_test() ->
-%     ?assertEqual([{{0,1},{1,1}},{{1,0},{1,1}},{{1,1},{1,2}},{{1,1},{2,1}}],
-%         lists:sort(rooms:get_open_cell_walls(1, 1, {5, 10, []}))
-%     ),
-%     ?assertEqual([],
-%         rooms:get_open_cell_walls(0, 0,
-%             {1, 1, [{{0,0},{1,0}},{{0,0},{0,1}},{{-1,0},{0,0}},{{0,-1},{0,0}}]})
-%     ),
-%     ?assertEqual([{{0,-1},{0,0}}],
-%         rooms:get_open_cell_walls(0, 0,
-%             {1, 1, [{{0,0},{1,0}},{{0,0},{0,1}},{{-1,0},{0,0}}]})
-%     ).
+get_open_cell_walls_test() ->
+    ?assertEqual([{{0,1},{1,1}},{{1,0},{1,1}},{{1,1},{1,2}},{{1,1},{2,1}}],
+        lists:sort(rooms:get_open_cell_walls(1, 1, {5, 10, []}))
+    ),
+    ?assertEqual([],
+        rooms:get_open_cell_walls(0, 0,
+            {1, 1, [{{0,0},{1,0}},{{0,0},{0,1}},{{-1,0},{0,0}},{{0,-1},{0,0}}]})
+    ),
+    ?assertEqual([{{0,-1},{0,0}}],
+        rooms:get_open_cell_walls(0, 0,
+            {1, 1, [{{0,0},{1,0}},{{0,0},{0,1}},{{-1,0},{0,0}}]})
+    ).
 
 
-% get_completable_walls_test() ->
-%     ?assertEqual([], rooms:get_completable_walls({1, 1, []})),
-%     ?assertEqual([{{0,-1},{0,0}}],
-%         rooms:get_completable_walls({1, 1,
-%             [{{0,0},{1,0}},{{0,0},{0,1}},{{-1,0},{0,0}}]})
-%     ).
+get_completable_walls_test() ->
+    ?assertEqual([], rooms:get_completable_walls({1, 1, []})),
+    ?assertEqual([{{0,-1},{0,0}}],
+        rooms:get_completable_walls({1, 1,
+            [{{0,0},{1,0}},{{0,0},{0,1}},{{-1,0},{0,0}}]})
+    ).
 
 
 % build_wall_test() ->
