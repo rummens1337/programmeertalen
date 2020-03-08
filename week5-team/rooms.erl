@@ -189,10 +189,10 @@ hlines_string(notmax, Grid, Row, Counter, Max, String) ->
     Wall = has_wall(Counter, Row, north, Grid),
 
     case(Wall) of
-    false -> NewString = String ++ "+  ",
+    true  -> NewString = String ++ "+--",
              NewCounter = Counter + 1,
              hlines_counter(Grid, Row, NewCounter, Max, NewString);
-    true  -> NewString = String ++ "+--",
+    false -> NewString = String ++ "+  ",
              NewCounter = Counter + 1,
              hlines_counter(Grid, Row, NewCounter, Max, NewString)
     end.
