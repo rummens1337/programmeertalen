@@ -101,7 +101,7 @@ show_hlines(Row, Grid) ->
 
 % @doc      Calls print_grid/3 with the correct arguments.
 % @param    Grid: grid {width, height, walls}.
-% @returns  None.
+% @returns  Calls print_grid/3, which prints the grid.
 print_grid(Grid) ->
     Height = element(2, Grid),
     print_grid(Grid, 0, Height).
@@ -162,7 +162,7 @@ get_open_cell_walls(X,Y,Grid) ->
 
 % @doc      Computes a list of all the completable walls of a grid.
 % @param    Grid: grid {width, height, walls}.
-% @returns  A list of completable walls from the Grid.
+% @returns  A list of completable walls from the grid.
 get_completable_walls(Grid) ->
     {W,H,_List} = Grid,
    lists:flatten([get_open_cell_walls(X,Y, Grid)
@@ -259,7 +259,7 @@ vlines_counter(Grid, Row, Counter, Max, String) ->
 % @param    String: formatted string.
 % @returns  Max: the final formatted string of the vertical lines of a row.
 %           Notmax: calls the function vlines_counter again with the new
-%           String.
+%           String, and therefore forms a recursion with two functions.
 vlines_string(max, Grid, Row, Counter, String) ->
     NewCounter = Counter - 1,
     Wall = has_wall(NewCounter, Row, east, Grid),
@@ -294,27 +294,27 @@ vlines_string(notmax, Grid, Row, Counter, Max, String) ->
 % @returns  The final formatted string of the horizontal lines of a row.
 hlines_counter(Grid, Row, Counter, Max, String) ->
     case(Counter) of
-        Max -> hlines_string(max, String);
-        _   -> hlines_string(notmax, Grid, Row, Counter, Max, String)
+        Max -> hlines_string(String);
+        _   -> hlines_string(Grid, Row, Counter, Max, String)
     end.
 
+% @doc      Places the final plus and ~n on the string with all horizontal walls.
+% @param    String: formatted string.
+% @returns  The final formatted string with horizontal walls.
+hlines_string(String) ->
+    NewString = String ++ "+~n",
+    NewString.
+
 % @doc      Formats a horizontal wall to a string and adds it to the current
-%           string. If max is specified, the last part of the string will
-%           contain a ~n and the recursion will stop.
-% @param    The atom max/notmax.
+%           string.
 % @param    Grid: grid {width, height, walls}.
 % @param    Int Row: rownumber.
 % @param    Int Counter: amount of iterations.
 % @param    Int Max: maximum number of iterations.
 % @param    String: formatted string.
-% @returns  Max: the final formatted string of the horizontal lines of a row.
-%           Notmax: calls the function hlines_counter again with the new
-%           String.
-hlines_string(max, String) ->
-    NewString = String ++ "+~n",
-    NewString.
-
-hlines_string(notmax, Grid, Row, Counter, Max, String) ->
+% @returns  Calls the function hlines_counter again with the new String, and
+%           therefore forms a recursion with two functions.
+hlines_string(Grid, Row, Counter, Max, String) ->
     Wall = has_wall(Counter, Row, north, Grid),
 
     case(Wall) of
@@ -330,7 +330,7 @@ hlines_string(notmax, Grid, Row, Counter, Max, String) ->
 % @param    Grid: grid {width, height, walls}.
 % @param    Int Counter: current rownumber.
 % @param    Int Height: total height of the grid.
-% @returns  None.
+% @returns  Recursively prints the grid until the last row is printed.
 print_grid(Grid, Counter, Height) ->
     case(Counter) of
         Height -> RowHor = show_hlines(Counter, Grid),
@@ -348,8 +348,8 @@ print_grid(Grid, Counter, Height) ->
 % @param    int W: width.
 % @param    int H: height.
 % @param    int CountV: current rownumber.
-% @param    List AllWalls as a list with all walls (Empty on first call).
-% @returns  A list of all possible walls, with duplicates.
+% @param    List AllWalls: list with all walls (Empty on first call).
+% @returns  A list of all possible walls in a grid, with duplicates.
 get_all_walls(W, H, CountV, AllWalls) ->
     case(CountV) of
         H -> AllWalls;
@@ -363,7 +363,7 @@ get_all_walls(W, H, CountV, AllWalls) ->
 % @param    int W: width.
 % @param    int H: height.
 % @param    int CountV: current cellnumber.
-% @param    List AllWalls as a list with all walls (Empty on first call).
+% @param    List AllWalls: list with all walls (Empty on first call).
 % @returns  A list of all possible walls adjacent to all cells in a row,
 %           with duplicates.
 get_walls_row(W, H, CountH, Y, AllWalls) ->
@@ -374,7 +374,3 @@ get_walls_row(W, H, CountH, Y, AllWalls) ->
              get_walls_row(W, H, NewCounter, Y, Walls)
     end.
 
-% retrieve_completeable_walls(Grid, Completable, Coordinates) ->
-%     case(Iterator) of
-%         0 -> Completable;
-%         _ -> get
