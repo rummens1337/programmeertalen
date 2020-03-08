@@ -22,7 +22,6 @@
          terminate/2, code_change/3]).
 
 %%% Internal functions - testing purposes.
--export([get_walls/3]).
 
 %%%====================================================================
 %%% API
