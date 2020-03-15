@@ -158,7 +158,7 @@ func solve(maze Maze) []Position {
 
 	var route []Position = make([]Position, 0)
 	route = append(route, Position{Row: 0, Col: 0})
-	// countRoutines := 0
+	countRoutines := 0
 
 	numRows := len(maze)
 	var onceMaze [][]sync.Once
@@ -190,7 +190,7 @@ func solve(maze Maze) []Position {
 
 	/* For loop below waits for all the goroutines to finish. */
 
-	for i := 0; i < /*countRoutines*/; i++ {
+	for i := 0; i < countRoutines; i++ {
 		<-routes
 	}
 
