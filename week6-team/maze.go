@@ -168,13 +168,13 @@ func solve(maze Maze) []Position {
 
 	go traverse(route, maze)
 
+	var found bool
 	for {
 		select {
-		case x, ok := <-finalroute:
-			if ok {
+		case x:= <-finalroute:
 				route = x
-				break
-			}
+				found = true
+				break // break out of switch
 		default:
 			var newRoute []Position = <-routes
 
@@ -185,6 +185,10 @@ func solve(maze Maze) []Position {
 				countRoutines++
 				go traverse(newRoute, maze)
 			})
+		}
+
+		if found{
+			break // break out of loop
 		}
 	}
 
