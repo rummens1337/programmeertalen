@@ -61,7 +61,7 @@ func walls(pos Position, maze Maze) []Position {
 	var newP []Position = make([]Position, 0, 4)
 
 	/* No north wall: */
-	if maze[pos.Row-1][pos.Col]&southWall == 0 {
+	if pos.Row-1 > 0 && maze[pos.Row-1][pos.Col]&southWall == 0 {
 		newP = append(newP, Position{Row: pos.Row - 1, Col: pos.Col})
 	}
 
@@ -71,7 +71,7 @@ func walls(pos Position, maze Maze) []Position {
 	}
 
 	/* No west wall: */
-	if maze[pos.Row][pos.Col-1]&eastWall == 0 {
+	if pos.Col-1 > 0 && maze[pos.Row][pos.Col-1]&eastWall == 0 {
 		newP = append(newP, Position{Row: pos.Row, Col: pos.Col - 1})
 	}
 
@@ -158,13 +158,15 @@ func solve(maze Maze) []Position {
 
 	var route []Position = make([]Position, 0)
 	route = append(route, Position{Row: 0, Col: 0})
-	countRoutines := 0
+	// countRoutines := 0
 
-	numRows := len(maze) // Is dit nu goed?
+	numRows := len(maze)
 	var onceMaze [][]sync.Once
 	for i := 0; i < numRows; i++ {
 		onceMaze = append(onceMaze, *new([]sync.Once))
 	}
+
+	go traverse(route, maze)
 
 	for {
 		select {
@@ -188,7 +190,7 @@ func solve(maze Maze) []Position {
 
 	/* For loop below waits for all the goroutines to finish. */
 
-	for i := 0; i < countRoutines; i++ {
+	for i := 0; i < /*countRoutines*/; i++ {
 		<-routes
 	}
 
