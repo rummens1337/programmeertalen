@@ -39,10 +39,12 @@ func readMaze(f *os.File) (maze Maze) {
 		maze = append(maze, []byte(s.Text()))
 	}
 
-	for _, row := range maze { // is dit goed?
+	for i, row := range maze {
 		for cell := range row {
-			if cell < 48 || cell > 51 {
+			
+			wall := maze[i][cell]
 
+			if wall <= 47 || wall >= 52 {
 				log.Fatal("File contains one or more invalid characters.")
 			}
 		}
@@ -216,15 +218,19 @@ func main() {
 	f, err := os.Open(os.Args[1])
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("There was an error opening the file", err)
 	}
 
 	maze := readMaze(f)
+
 	for _, pos := range solve(maze) {
 		maze[pos.Row][pos.Col] |= (1 << 2) // The third flag
 	}
+
 	for _, line := range maze {
-		// TODO: handle errors ?? Wat voor errors?
+		if len(line) <= 0{
+			log.Println("Tried printing an empty line.")
+		}
 		fmt.Println(string(line))
 	}
 }
