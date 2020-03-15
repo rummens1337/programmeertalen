@@ -39,14 +39,14 @@ func readMaze(f *os.File) (maze Maze) {
 		maze = append(maze, []byte(s.Text()))
 	}
 
-	for _, row := range maze { // is dit goed?
-		for cell := range row {
-			if cell < 48 || cell > 51 {
+	// for _, row := range maze { // is dit goed?
+	// 	for cell := range row {
+	// 		if maze[row][cell] <= 48 || maze[row][cell] >= 51 {
 
-				log.Fatal("File contains one or more invalid characters.")
-			}
-		}
-	}
+	// 			log.Fatal("File contains one or more invalid characters.")
+	// 		}
+	// 	}
+	// }
 
 	return
 }
@@ -150,6 +150,9 @@ func traverse(route []Position, maze Maze) {
 route. */
 
 func solve(maze Maze) []Position {
+
+	// var routes chan []Position = make(chan []Position)
+	// var finalroute chan []Position = make(chan []Position)
 
 	var route []Position = make([]Position, 0)
 	route = append(route, Position{Row: 0, Col: 0})
