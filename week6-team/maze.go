@@ -170,11 +170,9 @@ func solve(maze Maze) []Position {
 
 	for {
 		select {
-		case x, ok := <-finalroute:
-			if ok {
-				route = x
-				break
-			}
+		case x := <-finalroute:
+			route = x
+			break
 		default:
 			var newRoute []Position = <-routes
 
