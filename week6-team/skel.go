@@ -17,7 +17,6 @@ type Position struct {
 	Row, Col int
 }
 
-var channelsDone chan int = make(chan int)
 var routes chan []Position = make(chan []Position)
 var finalroute chan []Position = make(chan []Position)
 
@@ -102,7 +101,7 @@ func traverse(route []Position, maze Maze) {
 		}
 
 		/* Checks the amount of paths and takes the appropiate action (f.e. spawning
-		more go-routines if more than two positions are possible). */
+		the needed number of go-routines if more than two positions are possible). */
 
 		if len(newP) <= 0 {
 			return
@@ -135,14 +134,17 @@ func traverse(route []Position, maze Maze) {
 	return
 }
 
-/* Solves the maze and spawns new go-routines for if needed. */
+/* Solves the maze and spawns new go-routines for if needed. Returns the shortest
+route. */
 
-func solve(maze Maze) []Position { // returns route
+func solve(maze Maze) []Position {
 
 	var onceMaze [][]sync.Once
 
 	var route []Position = make([]Position, 0)
 	route = append(route, Position{Row: 0, Col: 0})
+
+	// ???
 
 	for _, row := range maze {
 		for cell := range row {
@@ -150,22 +152,36 @@ func solve(maze Maze) []Position { // returns route
 			onceMaze[row][cell] = new(sync.Once)
 		}
 	}
-	// spawn goroutines met benodigde waarden
 
 	for {
+		select {
+		case x, ok := <-finalroute:
+			if ok {
+				route = x
+				break
+			}
+		default:
+			continue
+		}
+
 		var newRoute []Position = <-routes
 
 		row := newRoute[len(newRoute)-1].Row
 		col := newRoute[len(newRoute)-1].Col
 
 		onceMaze.Do[row][col](func() {
-			traverse(newRoute, maze)
+			go traverse(newRoute, maze)
 		})
-
-		// als finalroute wat heeft, break
 	}
 
+
 	// wacht op remaining go routines
+
+	for {
+		<-routes
+	}
+
+	// Comments in skeleton:
 
 	// Initialize a channel for communication with goroutines
 	// No functional dependency on the size of a buffer is allowed
@@ -178,11 +194,12 @@ func solve(maze Maze) []Position { // returns route
 
 	// Initialize onceMaze and use it to limit each cell to a single visit
 
-	// Start the exploration of the maze in a goroutine at position {0, 0}
-
 	// Receive messages from the goroutines and spawn new ones as needed
 	// Do not spawn new goroutines if a way out of the maze has been found
 	// Stop receiving only when no more exploration goroutines are running
+
+	close(routes)
+	close(finalroute)
 
 	return route
 }
