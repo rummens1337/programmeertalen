@@ -216,7 +216,22 @@ func main() {
 		maze[pos.Row][pos.Col] |= (1 << 2) // The third flag
 	}
 	for _, line := range maze {
-		// TODO: handle errors ??
+		// TODO: handle errors ?? Wat voor errors?
 		fmt.Println(string(line))
 	}
 }
+
+/* TODO:
+-sync.Once initialisatie: BELANGRIJK!
+-Waiting for go-routines to finish: BELANGRIJK!
+-Last error TODO: BELANGRIJK!
+-Bugfixing: BELANGRIJK!
+-Unsolvable maze > print original maze: bij tijd over.
+*/
+
+/* Gevorderd (alleen als algo werkt): Het gevonden pad is zeker het kortste pad, want
+elk punt kan maar 1 keer worden bezocht. Op het moment dat een routine aankomt bij een
+kruispunt wat al bezocht is, is er dus al een snellere route gevonden en zal de routine
+termineren (= "snoeien" van de zoekboom). Met dit in het achterhoofd zal de snelste
+route dus altijd eerder bij bepaalde kruispunten zijn dan andere routes en zal de
+snelste route dus ook het snelst bij de uitgang komen. */
