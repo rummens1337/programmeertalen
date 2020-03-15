@@ -96,7 +96,7 @@ func traverse(route []Position, maze Maze) {
 		has been found), the current route will be sent into the channel finalroute. */
 
 		for pos := range newP {
-			if pos.Row > len(maze) || pos.Col > len(maze[0]) {
+			if newP[pos].Row > len(maze) || newP[pos].Col > len(maze[0]) {
 				finalroute <- route
 				return
 			}
@@ -153,10 +153,9 @@ route. */
 
 func solve(maze Maze) []Position {
 
-	//var onceMaze [][]sync.Once
-
 	var route []Position = make([]Position, 0)
 	route = append(route, Position{Row: 0, Col: 0})
+	countRoutines := 0
 
 	numRows := len(maze) // Is dit nu goed?
 	onceMaze := *new([][]sync.Once)
@@ -172,22 +171,21 @@ func solve(maze Maze) []Position {
 				break
 			}
 		default:
-			continue
+			var newRoute []Position = <-routes
+
+			row := newRoute[len(newRoute)-1].Row
+			col := newRoute[len(newRoute)-1].Col
+
+			onceMaze[row][col].Do(func() {
+				countRoutines++
+				go traverse(newRoute, maze)
+			})
 		}
-
-		var newRoute []Position = <-routes
-
-		row := newRoute[len(newRoute)-1].Row
-		col := newRoute[len(newRoute)-1].Col
-
-		onceMaze[row][col].Do(func() {
-			go traverse(newRoute, maze)
-		})
 	}
 
-	// wacht op remaining go routines
+	/* For loop below waits for all the goroutines to finish. */
 
-	for {
+	for i := 0; i < countRoutines; i++ {
 		<-routes
 	}
 
@@ -236,8 +234,6 @@ func main() {
 }
 
 /* TODO:
--sync.Once initialisatie: BELANGRIJK!
--Waiting for go-routines to finish: BELANGRIJK!
 -Last error TODO: BELANGRIJK!
 -Bugfixing: BELANGRIJK!
 -Unsolvable maze > print original maze: bij tijd over.
