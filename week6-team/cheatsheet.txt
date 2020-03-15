@@ -1,0 +1,15 @@
+0 = 00 = geen muren
+1 = 10 = muur zuid
+2 = 01 = muur oost
+3 = 11 = muur zuid en oost
+
+            Noord
+              ^
+              |
+West < -  Kruispunt - > Oost
+              |
+              V
+             Zuid
+
+Solve -> traverse -> stopt, roept recursief zichzelf aan of zendt msg naar solve
+om nieuwe routine te spawnen
