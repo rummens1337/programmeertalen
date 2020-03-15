@@ -161,9 +161,9 @@ func solve(maze Maze) []Position {
 	countRoutines := 0
 
 	numRows := len(maze) // Is dit nu goed?
-	onceMaze := *new([][]sync.Once)
+	var onceMaze [][]sync.Once
 	for i := 0; i < numRows; i++ {
-		onceMaze[i] = *new([]sync.Once)
+		onceMaze = append(onceMaze, *new([]sync.Once))
 	}
 
 	for {
@@ -229,7 +229,7 @@ func main() {
 	}
 
 	for _, line := range maze {
-		if len(line) <= 0{
+		if len(line) <= 0 {
 			log.Println("Tried printing an empty line.")
 		}
 		fmt.Println(string(line))
