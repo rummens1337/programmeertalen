@@ -56,28 +56,40 @@ func readMaze(f *os.File) (maze Maze) {
 /* Returns all free positions around one position, not counting the position where
 the solver just came from. */
 
-func walls(pos Position, maze Maze) []Position {
+func walls(pos Position, lastpos Position, maze Maze) []Position {
 
 	var newP []Position = make([]Position, 0, 4)
 
 	/* No north wall: */
-	if pos.Row-1 > 0 && maze[pos.Row-1][pos.Col]&southWall == 0 {
-		newP = append(newP, Position{Row: pos.Row - 1, Col: pos.Col})
+
+	newPos := Position{Row: pos.Row - 1, Col: pos.Col}
+
+	if pos.Row-1 >= 0 && newPos != lastpos && maze[pos.Row-1][pos.Col]&southWall == 0 {
+		newP = append(newP, newPos)
 	}
 
 	/* No south wall: */
-	if maze[pos.Row][pos.Col]&southWall == 0 {
-		newP = append(newP, Position{Row: pos.Row + 1, Col: pos.Col})
+
+	newPos = Position{Row: pos.Row + 1, Col: pos.Col}
+
+	if newPos != lastpos && maze[pos.Row][pos.Col]&southWall == 0 {
+		newP = append(newP, newPos)
 	}
 
 	/* No west wall: */
-	if pos.Col-1 > 0 && maze[pos.Row][pos.Col-1]&eastWall == 0 {
-		newP = append(newP, Position{Row: pos.Row, Col: pos.Col - 1})
+
+	newPos = Position{Row: pos.Row, Col: pos.Col - 1}
+
+	if pos.Col-1 >= 0 && newPos != lastpos && maze[pos.Row][pos.Col-1]&eastWall == 0 {
+		newP = append(newP, newPos)
 	}
 
 	/* No east wall: */
-	if maze[pos.Row][pos.Col]&eastWall == 0 {
-		newP = append(newP, Position{Row: pos.Row, Col: pos.Col + 1})
+
+	newPos = Position{Row: pos.Row, Col: pos.Col + 1}
+
+	if newPos != lastpos && maze[pos.Row][pos.Col]&eastWall == 0 {
+		newP = append(newP, newPos)
 	}
 
 	return newP
@@ -88,63 +100,77 @@ if necessary. */
 
 func traverse(route []Position, maze Maze) {
 
-	for i := 0; i < len(route); i++ {
+	/* PreviousPos is given with walls to leave the position out where the solver
+	just came from. */
 
-		var newP []Position = walls(route[len(route)-1], maze)
+	var previousPos Position
 
-		/* If one of the new positions is out of bounds (or in other words, an exit
-		has been found), the current route will be sent into the channel finalroute. */
+	if len(route) == 1 {
+		previousPos = Position{Row: -2, Col: -2}
+	} else {
+		previousPos = route[len(route)-2]
+	}
 
-		for pos := range newP {
-			if newP[pos].Row > len(maze) || newP[pos].Col > len(maze[0]) {
-				finalroute <- route
-				return
-			}
-		}
+	var newP []Position = walls(route[len(route)-1], previousPos, maze)
 
-		/* Checks the amount of paths and takes the appropiate action (f.e. spawning
-		the needed number of go-routines if more than two positions are possible). */
+	/* If one of the new positions is out of bounds (or in other words, an exit
+	has been found), the current route will be sent into the channel finalroute. */
 
-		if len(newP) <= 1 {
+	for pos := range newP {
+		if newP[pos].Row >= len(maze) || newP[pos].Col >= len(maze[0]) {
+
+			finalroute <- route
 			return
-		} else if len(newP) == 2 {
-			route = append(route, newP[0])
-			routes <- route
-
-			var newRoute []Position = route
-			newRoute = append(newRoute, newP[1])
-			routes <- newRoute
-
-		} else if len(newP) == 3 {
-			route = append(route, newP[0])
-			routes <- route
-
-			var newRoute []Position = route
-			newRoute = append(newRoute, newP[1])
-			routes <- newRoute
-
-			var newnewRoute []Position = route
-			newnewRoute = append(newnewRoute, newP[2])
-			routes <- newnewRoute
-
-		} else if len(newP) == 4 {
-			route = append(route, newP[0])
-			routes <- route
-
-			var newRoute []Position = route
-			newRoute = append(newRoute, newP[1])
-			routes <- newRoute
-
-			var newnewRoute []Position = route
-			newnewRoute = append(newnewRoute, newP[2])
-			routes <- newnewRoute
-
-			var newnewnewRoute []Position = route
-			newnewnewRoute = append(newnewnewRoute, newP[3])
-			routes <- newnewnewRoute
 		}
 	}
 
+	/* Checks the amount of paths and takes the appropiate action (f.e. spawning
+	the needed number of go-routines if more than two positions are possible).
+	The first if is a special case for (0,0), since the algorithm would normally
+	consider this a dead end. */
+
+	if len(route) == 1 && len(newP) == 1 {
+		route = append(route, newP[0])
+		routes <- route
+
+	} else if len(newP) == 0 {
+
+		// print(newP[0].Row)
+		// print(",")
+		// print(newP[0].Col)
+		// print("\n")
+
+		return
+
+	} else if len(newP) == 1 {
+
+		route = append(route, newP[0])
+		routes <- route
+
+	} else if len(newP) == 2 {
+
+		var newRoute []Position = route
+
+		route = append(route, newP[0])
+		routes <- route
+
+		newRoute = append(newRoute, newP[1])
+		routes <- newRoute
+
+	} else if len(newP) == 3 {
+
+		var newRoute []Position = route
+		var newnewRoute []Position = route
+
+		route = append(route, newP[0])
+		routes <- route
+
+		newRoute = append(newRoute, newP[1])
+		routes <- newRoute
+
+		newnewRoute = append(newnewRoute, newP[2])
+		routes <- newnewRoute
+	}
 	return
 }
 
@@ -158,39 +184,69 @@ func solve(maze Maze) []Position {
 
 	var route []Position = make([]Position, 0)
 	route = append(route, Position{Row: 0, Col: 0})
-	countRoutines := 0
+
+	// Sync.once is nu correct WOOT
 
 	numRows := len(maze)
-	var onceMaze [][]sync.Once
+	numCol := len(maze[0])
+
+	var onceMaze [][]sync.Once = make([][]sync.Once, numRows)
+
 	for i := 0; i < numRows; i++ {
-		onceMaze = append(onceMaze, *new([]sync.Once))
+		onceMaze[i] = make([]sync.Once, numCol)
 	}
 
-	go traverse(route, maze)
+	onceMaze[0][0].Do(func() {
+		go traverse(route, maze)
+	})
 
+	var found bool
 	for {
 		select {
 		case x := <-finalroute:
 			route = x
-			break
+			found = true
+			break // break out of switch
 		default:
+
+			println("test")
+
 			var newRoute []Position = <-routes
+
+			print(newRoute[len(newRoute)-1].Row)
+			print(",")
+			print(newRoute[len(newRoute)-1].Col)
+			print("\n")
 
 			row := newRoute[len(newRoute)-1].Row
 			col := newRoute[len(newRoute)-1].Col
 
 			onceMaze[row][col].Do(func() {
-				countRoutines++
 				go traverse(newRoute, maze)
 			})
+		}
+
+		if found {
+			break // break out of loop
 		}
 	}
 
 	/* For loop below waits for all the goroutines to finish. */
 
-	for i := 0; i < countRoutines; i++ {
-		<-routes
+	// OOK WACHTEN OP finalroute.
+
+	println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+
+	for i := range route {
+		print(route[i].Row)
+		print(",")
+		print(route[i].Col)
+		print("\n")
 	}
+
+	// for i := 0; i < countRoutines; i++ {
+	// 	<-routes
+	// }
 
 	// Comments in skeleton:
 
@@ -237,9 +293,9 @@ func main() {
 }
 
 /* TODO:
--Last error TODO: BELANGRIJK!
--Bugfixing: BELANGRIJK!
--Unsolvable maze > print original maze: bij tijd over.
+-Wachten op alle goroutines
+-Bugfixing
+-Unsolvable maze > print original maze.
 */
 
 /* Gevorderd (alleen als algo werkt): Het gevonden pad is zeker het kortste pad, want
