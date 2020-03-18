@@ -196,33 +196,48 @@ func solve(maze Maze) []Position {
 		onceMaze[i] = make([]sync.Once, numCol)
 	}
 
+	var noPathCopy = make([]Position, len(route))
+
+	//print(route)
+
+	copy(noPathCopy, route)
+
+	//print(noPathCopy)
+
 	onceMaze[0][0].Do(func() {
-		go traverse(route, maze)
+		go traverse(noPathCopy, maze)
 	})
 
 	var found bool
 	for {
 		select {
 		case x := <-finalroute:
-			route = x
+
+			var copyFinal = make([]Position, len(x))
+			copy(copyFinal, x)
+
+			route = copyFinal
 			found = true
 			break // break out of switch
 		default:
 
-			println("test")
+			//println("test")
 
-			var newRoute []Position = <-routes
+			var temp []Position = <-routes
 
-			print(newRoute[len(newRoute)-1].Row)
-			print(",")
-			print(newRoute[len(newRoute)-1].Col)
-			print("\n")
+			var newRoute = make([]Position, len(temp))
+			copy(newRoute, temp)
 
 			row := newRoute[len(newRoute)-1].Row
 			col := newRoute[len(newRoute)-1].Col
 
 			onceMaze[row][col].Do(func() {
 				go traverse(newRoute, maze)
+
+				print(row)
+				print(",")
+				print(col)
+				print("\n")
 			})
 		}
 
@@ -294,13 +309,16 @@ func main() {
 
 /* TODO:
 -Wachten op alle goroutines
--Bugfixing
+-Bugfixing > copy slices?
 -Unsolvable maze > print original maze.
 */
 
-/* Gevorderd (alleen als algo werkt): Het gevonden pad is zeker het kortste pad, want
+/* Gevorderd (alleen als algo werkt): Het gevonden pad is theoretisch het kortste pad, want
 elk punt kan maar 1 keer worden bezocht. Op het moment dat een routine aankomt bij een
 kruispunt wat al bezocht is, is er dus al een snellere route gevonden en zal de routine
 termineren (= "snoeien" van de zoekboom). Met dit in het achterhoofd zal de snelste
 route dus altijd eerder bij bepaalde kruispunten zijn dan andere routes en zal de
-snelste route dus ook het snelst bij de uitgang komen. */
+snelste route dus ook het snelst bij de uitgang komen. Echter, in de praktijk kunnen
+andere go-routines eerder aankomen door invloeden van buitenaf (zoals andere programma's
+die op hetzelfde moment ook geheugen nodig hebben), dus om een betrouwbare uitspraak
+over de kortste route te doen moet men het programma meerdere keren draaien.*/
