@@ -154,11 +154,41 @@ Matrix operator-(const Matrix &m1, const Matrix &m2)
 /*! Returns a new Matrix that is equal to 'm1*m2'. */
 Matrix operator*(const Matrix &m1, const Matrix &m2)
 {
-    int rows = m1.nr_rows();
-    int cols = m2.nr_cols();
-    Matrix newMatrix(rows, cols);
+    int rows1 = m1.nr_rows();
+    int cols1 = m1.nr_rows();
+    int cols2 = m2.nr_cols();
 
+    int size = rows1 * cols1;
 
+    Matrix matrixTransposed = transpose(m2);
+
+    Matrix newMatrix(rows1, cols2);
+    int newSize = rows1 * cols2;
+    double total = 0;
+    int i = 0;
+    int j = 0;
+    int c = 0;
+
+    while (c < newSize)
+    {
+        total += m1.vec()[i] * m2.vec()[j];
+        i++;
+        j++;
+
+        if (i % cols1 == 0)
+        {
+            newMatrix.vec()[c] = total;
+            total = 0;
+            c++;
+            i -= cols1;
+
+            if (j == size)
+            {
+                i += cols1;
+                j = 0;
+            }
+        }
+    }
 
     return newMatrix; // to be completed
 }
