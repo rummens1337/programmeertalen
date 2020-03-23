@@ -1,7 +1,7 @@
-#include "evaluator.h"
+// #include "evaluator.h"
 #include "Matrix.h"
-#include "MatrixT.h"
-#include "Str.h"
+// #include "MatrixT.h"
+// #include "Str.h"
 
 /*! Program that evaluates a postfix expression read from cin and
     write it to cout. */
@@ -9,8 +9,11 @@ int main()
 {
     try
     {
-        Evaluator<int,0> evaluator;
-        std::cout<<evaluator.evaluate(std::cin)<<'\n';
+        Matrix matrix;
+        printf("lel");
+        std::cout<<"matrix:\n"<< matrix <<'\n';
+        // Evaluator<double,0> evaluator;
+        // std::cout<<evaluator.evaluate(std::cin)<<'\n';
     }
     catch(std::exception& e)
     {
