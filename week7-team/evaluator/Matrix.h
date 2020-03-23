@@ -64,9 +64,6 @@ std::istream &operator>>(std::istream &is, Matrix &matrix)
     matrix.m_data = data;
     matrix.m_cols = matrix.m_data.size() / rows;
 
-    std::cout<<matrix.m_rows;
-    std::cout<<matrix.m_cols;
-
     return is;
 }
 
@@ -92,13 +89,22 @@ Matrix operator-(const Matrix &matrix)
 /*! Returns a new Matrix that is the transpose of 'matrix' */
 Matrix transpose(const Matrix &matrix)
 {
-    // int rows = matrix.nr_rows();
-    // int cols = matrix.nr_cols();
-    // Matrix newMatrix(rows, cols);
+    int rows = matrix.nr_rows();
+    int cols = matrix.nr_cols();
+    Matrix newMatrix(rows, cols);
 
-    // for (size_t i = 0; i < rows; ++i)
-    //     for (size_t j = 0; j < cols; ++j)
-    //         newMatrix.vec()[i] = newMatrix.vec()[i * j];
+    int c = 0;
+    int count = 0;
+    for (size_t i = 0; i < rows; ++i)
+    {
+        c = 0;
+        for (size_t j = 0; j < cols; ++j)
+        {
+            newMatrix.vec()[count] = matrix.vec()[i + c];
+            c += rows;
+            count += 1;
+        }
+    }
 
     return matrix; // to be completed
 }
