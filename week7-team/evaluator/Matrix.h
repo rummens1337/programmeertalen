@@ -99,22 +99,22 @@ Matrix operator-(const Matrix &matrix)
 {
     Matrix newMatrix(matrix.nr_rows(), matrix.nr_cols());
 
-    for (size_t i = 0; i < matrix.vec().size() + 1; ++i)
+    for (size_t i = 0; i < matrix.vec().size(); ++i)
         newMatrix.vec()[i] = matrix.vec()[i] * -1;
 
-    return newMatrix; // to be completed
+    return newMatrix;
 }
 
 /*! Returns a new Matrix that is the transpose of 'matrix' */
 Matrix transpose(const Matrix &matrix)
 {
-    int rows = matrix.nr_rows();
-    int cols = matrix.nr_cols();
-    Matrix newMatrix(rows, cols);
+    // int rows = matrix.nr_rows();
+    // int cols = matrix.nr_cols();
+    // Matrix newMatrix(rows, cols);
 
-    for (size_t i = 0; i < rows; ++i)
-        for (size_t j = 0; j < cols; ++j)
-            newMatrix.vec()[i] = newMatrix.vec()[i * j];
+    // for (size_t i = 0; i < rows; ++i)
+    //     for (size_t j = 0; j < cols; ++j)
+    //         newMatrix.vec()[i] = newMatrix.vec()[i * j];
 
     return matrix; // to be completed
 }
@@ -125,15 +125,10 @@ Matrix operator+(const Matrix &m1, const Matrix &m2)
 
     Matrix newMatrix(m1.nr_rows(), m1.nr_cols());
 
-    if (m1.vec().size() > 1)
-    {
-        for (size_t i = 0; i < m1.vec().size() +1; i++)
-        {
+    for (size_t i = 0; i < m1.vec().size() + 1; i++)
             newMatrix.vec()[i] = m1.vec()[i] + m2.vec()[i];
-        }
-    }
 
-    return newMatrix; // to be completed
+    return newMatrix;
 }
 
 /*! Returns a new Matrix that is equal to 'm1-m2'. */
@@ -141,15 +136,10 @@ Matrix operator-(const Matrix &m1, const Matrix &m2)
 {
     Matrix newMatrix(m1.nr_rows(), m1.nr_cols());
 
-    if (m1.vec().size() > 1)
-    {
-        for (size_t i = 0; i < m1.vec().size() + 1; i++)
-        {
+    for (size_t i = 0; i < m1.vec().size() + 1; i++)
             newMatrix.vec()[i] = m1.vec()[i] - m2.vec()[i];
-        }
-    }
 
-    return newMatrix; // to be completed
+    return newMatrix;
 }
 
 /*! Returns a new Matrix that is equal to 'm1*m2'. */
