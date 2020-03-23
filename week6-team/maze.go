@@ -1,3 +1,10 @@
+/* Names: Thomas Vos, Michel Rummens
+ * StudentID's: 12829501, 13108093
+ * This file can solve mazes of any size, and theoretically prints the fastest
+ * solution (see explanation at the end of the file), or the original maze if it
+ * is unsolvable.
+ */
+
 package main
 
 import (
@@ -8,8 +15,8 @@ import (
 	"sync"
 )
 
-const southWall byte = (1 << 0) // The first flag
-const eastWall byte = (1 << 1)  // The second flag
+const southWall byte = (1 << 0)
+const eastWall byte = (1 << 1)
 
 type Maze [][]byte
 
@@ -17,19 +24,8 @@ type Position struct {
 	Row, Col int
 }
 
-var routes chan []Position = make(chan []Position)
-var finalroute chan []Position = make(chan []Position)
-
-/* EXAMPLE: for a Position pos, there is NO wall north of pos if and only if
- *  maze[pos.Row - 1][pos.Col] & southWall == 0
- *
- * Use the above construct, including the '== 0' part, when checking for the
- * absence of walls. For an explanation of why this works, see the provided
- * 'Questions and Answers' document.
- */
-
-/* Reads the maze from a file. If the file contains invalid characters, the program
-will return an error message. */
+/* Reads the maze from a file. If the file contains invalid characters,
+the program will return an error message. */
 
 func readMaze(f *os.File) (maze Maze) {
 
@@ -53,19 +49,19 @@ func readMaze(f *os.File) (maze Maze) {
 	return
 }
 
-/* Returns all free positions around one position, not counting the position where
-the solver just came from. */
+/* Returns all free positions around one position, not counting the position
+where the solver just came from. */
 
 func walls(pos Position, lastpos Position, maze Maze) []Position {
 
-	var newP []Position = make([]Position, 0, 4)
+	var freePositions []Position = make([]Position, 0, 4)
 
 	/* No north wall: */
 
 	newPos := Position{Row: pos.Row - 1, Col: pos.Col}
 
 	if pos.Row-1 >= 0 && newPos != lastpos && maze[pos.Row-1][pos.Col]&southWall == 0 {
-		newP = append(newP, newPos)
+		freePositions = append(freePositions, newPos)
 	}
 
 	/* No south wall: */
@@ -73,7 +69,7 @@ func walls(pos Position, lastpos Position, maze Maze) []Position {
 	newPos = Position{Row: pos.Row + 1, Col: pos.Col}
 
 	if newPos != lastpos && maze[pos.Row][pos.Col]&southWall == 0 {
-		newP = append(newP, newPos)
+		freePositions = append(freePositions, newPos)
 	}
 
 	/* No west wall: */
@@ -81,7 +77,7 @@ func walls(pos Position, lastpos Position, maze Maze) []Position {
 	newPos = Position{Row: pos.Row, Col: pos.Col - 1}
 
 	if pos.Col-1 >= 0 && newPos != lastpos && maze[pos.Row][pos.Col-1]&eastWall == 0 {
-		newP = append(newP, newPos)
+		freePositions = append(freePositions, newPos)
 	}
 
 	/* No east wall: */
@@ -89,19 +85,23 @@ func walls(pos Position, lastpos Position, maze Maze) []Position {
 	newPos = Position{Row: pos.Row, Col: pos.Col + 1}
 
 	if newPos != lastpos && maze[pos.Row][pos.Col]&eastWall == 0 {
-		newP = append(newP, newPos)
+		freePositions = append(freePositions, newPos)
 	}
 
-	return newP
+	return freePositions
 }
 
-/* Traverses through a route, and instructs the solve function to add more go-routines
-if necessary. */
+/* Traverses through a route, and instructs the solve function to add more
+go-routines if necessary. Also sends the final route to a separate channel and
+sends a 1 to "allRoutines" when the current go-routine is finished. */
 
-func traverse(route []Position, maze Maze) {
+func traverse(route []Position, maze Maze, routes chan []Position,
+	finalroute chan []Position, allRoutines chan int) {
 
-	/* PreviousPos is given with walls to leave the position out where the solver
-	just came from. */
+	/* Walls receives the last position of the route and the one before that
+	(previousPos), so it can skip the latter one while determining the possible
+	new routes. For 0.0, previousPos is set to -2,-2 so that it can never
+	influence the comparison. */
 
 	var previousPos Position
 
@@ -111,81 +111,88 @@ func traverse(route []Position, maze Maze) {
 		previousPos = route[len(route)-2]
 	}
 
-	var newP []Position = walls(route[len(route)-1], previousPos, maze)
+	var freePositions []Position = walls(route[len(route)-1], previousPos, maze)
 
-	/* If one of the new positions is out of bounds (or in other words, an exit
-	has been found), the current route will be sent into the channel finalroute. */
+	/* If one of the new positions is out of bounds (as in an exit has been
+	found), the current route will be sent into the channel finalroute. */
 
-	for pos := range newP {
-		if newP[pos].Row >= len(maze) || newP[pos].Col >= len(maze[0]) {
+	for pos := range freePositions {
+		if freePositions[pos].Row >= len(maze) || freePositions[pos].Col >= len(maze[0]) {
 
+			routes <- route
 			finalroute <- route
+
+			allRoutines <- 1
+
 			return
 		}
 	}
 
-	/* Checks the amount of paths and takes the appropiate action (f.e. spawning
-	the needed number of go-routines if more than two positions are possible).
-	The first if is a special case for (0,0), since the algorithm would normally
-	consider this a dead end. */
+	/* Checks the amount of paths and instructs the solve function to spawn the
+	correct amount of go-routines. */
 
-	if len(route) == 1 && len(newP) == 1 {
-		route = append(route, newP[0])
-		routes <- route
+	if len(freePositions) == 0 {
 
-	} else if len(newP) == 0 {
-
-		// print(newP[0].Row)
-		// print(",")
-		// print(newP[0].Col)
-		// print("\n")
+		allRoutines <- 1
 
 		return
 
-	} else if len(newP) == 1 {
+	} else if len(freePositions) == 1 {
 
-		route = append(route, newP[0])
+		route = append(route, freePositions[0])
 		routes <- route
 
-	} else if len(newP) == 2 {
+	} else if len(freePositions) == 2 {
 
 		var newRoute []Position = route
 
-		route = append(route, newP[0])
+		route = append(route, freePositions[0])
 		routes <- route
 
-		newRoute = append(newRoute, newP[1])
+		newRoute = append(newRoute, freePositions[1])
 		routes <- newRoute
 
-	} else if len(newP) == 3 {
+	} else if len(freePositions) == 3 {
 
 		var newRoute []Position = route
 		var newnewRoute []Position = route
 
-		route = append(route, newP[0])
+		route = append(route, freePositions[0])
 		routes <- route
 
-		newRoute = append(newRoute, newP[1])
+		newRoute = append(newRoute, freePositions[1])
 		routes <- newRoute
 
-		newnewRoute = append(newnewRoute, newP[2])
+		newnewRoute = append(newnewRoute, freePositions[2])
 		routes <- newnewRoute
 	}
+
+	allRoutines <- 1
+
 	return
 }
 
-/* Solves the maze and spawns new go-routines for if needed. Returns the shortest
-route. */
+/* Solves the maze and spawns new go-routines for if needed. Returns the
+shortest route. */
 
 func solve(maze Maze) []Position {
 
-	// var routes chan []Position = make(chan []Position)
-	// var finalroute chan []Position = make(chan []Position)
+	/* Declaration and initialization of the three channels needed: "routes" for
+	temporary routes, "finalroute" for the final route and "allRoutines" that
+	keeps track of finished go-routines. The int "activeRoutines functions as
+	a counter for the amount of active routines. */
+
+	var routes chan []Position = make(chan []Position)
+	var finalroute chan []Position = make(chan []Position)
+	var allRoutines chan int = make(chan int)
+
+	activeRoutines := 0
+
+	/* Initializes the sync.Once, used to make sure every position
+	is only visited exactly once. */
 
 	var route []Position = make([]Position, 0)
 	route = append(route, Position{Row: 0, Col: 0})
-
-	// Sync.once is nu correct WOOT
 
 	numRows := len(maze)
 	numCol := len(maze[0])
@@ -196,92 +203,95 @@ func solve(maze Maze) []Position {
 		onceMaze[i] = make([]sync.Once, numCol)
 	}
 
+	/* Spawns the first go-routine for 0.0. */
+
+	var noPathCopy = make([]Position, len(route))
+	copy(noPathCopy, route)
+
 	onceMaze[0][0].Do(func() {
-		go traverse(route, maze)
+		activeRoutines++
+		go traverse(noPathCopy, maze, routes, finalroute, allRoutines)
 	})
 
-	var found bool
-	for {
+	var found bool = false
+
+	/* In this loop, 3 things are checked: firstly, if "routes" has received a
+	new route, a new go-routine is spawned for that route, and "activeRoutines"
+	is increased by 1. Secondly, if "allRoutines" has received a 1 (which means
+	a go-routine has finished), "activeRoutines" is decreased by one. Lastly, if
+	"finalroute" has received a route, this route will be saved and the bool
+	"found" will be set to true, so that no more routines are spawned. The loop
+	ends when all routines have finished. */
+
+	for activeRoutines > 0 {
+
 		select {
+		case temp := <-routes:
+
+			if found == false {
+
+				var newRoute = make([]Position, len(temp))
+				copy(newRoute, temp)
+
+				row := newRoute[len(newRoute)-1].Row
+				col := newRoute[len(newRoute)-1].Col
+
+				onceMaze[row][col].Do(func() {
+
+					activeRoutines++
+					go traverse(newRoute, maze, routes, finalroute, allRoutines)
+				})
+			}
+
+		case <-allRoutines:
+			activeRoutines--
+
 		case x := <-finalroute:
-			route = x
-			found = true
-			break // break out of switch
-		default:
 
-			println("test")
+			if found == false {
 
-			var newRoute []Position = <-routes
+				var copyFinal = make([]Position, len(x))
+				copy(copyFinal, x)
 
-			print(newRoute[len(newRoute)-1].Row)
-			print(",")
-			print(newRoute[len(newRoute)-1].Col)
-			print("\n")
-
-			row := newRoute[len(newRoute)-1].Row
-			col := newRoute[len(newRoute)-1].Col
-
-			onceMaze[row][col].Do(func() {
-				go traverse(newRoute, maze)
-			})
-		}
-
-		if found {
-			break // break out of loop
+				route = copyFinal
+				found = true
+			}
 		}
 	}
 
-	/* For loop below waits for all the goroutines to finish. */
-
-	// OOK WACHTEN OP finalroute.
-
-	println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-
-	for i := range route {
-		print(route[i].Row)
-		print(",")
-		print(route[i].Col)
-		print("\n")
-	}
-
-	// for i := 0; i < countRoutines; i++ {
-	// 	<-routes
-	// }
-
-	// Comments in skeleton:
-
-	// Initialize a channel for communication with goroutines
-	// No functional dependency on the size of a buffer is allowed
-
-	// Include a closure for the exploration of maze cells in goroutines
-	/* NOTE: The closure will be a short-lived function. Normally, this
-	 *       would be considered inefficient. However, achieving  efficient
-	 *       concurrency is not the point of this exercise.
-	 */
-
-	// Initialize onceMaze and use it to limit each cell to a single visit
-
-	// Receive messages from the goroutines and spawn new ones as needed
-	// Do not spawn new goroutines if a way out of the maze has been found
-	// Stop receiving only when no more exploration goroutines are running
-
+	close(allRoutines)
 	close(routes)
 	close(finalroute)
+
+	/* If no solution has been found, route is set to nil. */
+
+	if found == false {
+
+		route = nil
+	}
 
 	return route
 }
 
+/* Main function, processes the input (and gives an error if needed) and sends
+the maze to the python script, which prints it. */
+
 func main() {
+
+	if len(os.Args) < 2 {
+		log.Fatal("Too few arguments given.")
+	}
+
 	f, err := os.Open(os.Args[1])
 
 	if err != nil {
-		log.Fatal("There was an error opening the file", err)
+		log.Fatal("There was an error opening the file.", err)
 	}
 
 	maze := readMaze(f)
 
 	for _, pos := range solve(maze) {
-		maze[pos.Row][pos.Col] |= (1 << 2) // The third flag
+		maze[pos.Row][pos.Col] |= (1 << 2)
 	}
 
 	for _, line := range maze {
@@ -292,15 +302,15 @@ func main() {
 	}
 }
 
-/* TODO:
--Wachten op alle goroutines
--Bugfixing
--Unsolvable maze > print original maze.
-*/
+/* Expert: the found path is theoretically the shortest one, since every point
+can only be visisted once. If a routine arrives at the position of a crossroad
+where another routine has already been, the latter is faster and the former
+stops. The quickest route will therefore always "block" other possible routes,
+which ensures that the solver always returns this route.
 
-/* Gevorderd (alleen als algo werkt): Het gevonden pad is zeker het kortste pad, want
-elk punt kan maar 1 keer worden bezocht. Op het moment dat een routine aankomt bij een
-kruispunt wat al bezocht is, is er dus al een snellere route gevonden en zal de routine
-termineren (= "snoeien" van de zoekboom). Met dit in het achterhoofd zal de snelste
-route dus altijd eerder bij bepaalde kruispunten zijn dan andere routes en zal de
-snelste route dus ook het snelst bij de uitgang komen. */
+However, this may not always be the case due to influences from outside. Other
+routes may be found earlier if the go-routines of the quickest path have to wait
+(possibly if other programs need memory or processors as well), so to actually
+obtain the quickest route, multiple tests are needed. This is especially visible
+in the maze without any walls, where the solutions are similar but often not the
+same, due to the reason I described above. */
