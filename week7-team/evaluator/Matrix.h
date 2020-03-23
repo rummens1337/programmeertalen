@@ -110,11 +110,22 @@ Matrix transpose(const Matrix &matrix)
 {
     int rows = matrix.nr_rows();
     int cols = matrix.nr_cols();
-    int sizeMatrix = rows * cols;
-
     Matrix newMatrix(cols, rows);
 
-    return newMatrix; // to be completed
+    int c = 0;
+    int count = 0;
+    for (size_t i = 0; i < cols; ++i)
+    {
+        c = 0;
+        for (size_t j = 0; j < rows; ++j)
+        {
+            newMatrix.vec()[count] = matrix.vec()[i + c];
+            c += cols;
+            count += 1;
+        }
+    }
+
+    return newMatrix;
 }
 
 /*! Returns a new Matrix that is equal to 'm1+m2'. */
@@ -143,7 +154,13 @@ Matrix operator-(const Matrix &m1, const Matrix &m2)
 /*! Returns a new Matrix that is equal to 'm1*m2'. */
 Matrix operator*(const Matrix &m1, const Matrix &m2)
 {
-    return m1; // to be completed
+    int rows = m1.nr_rows();
+    int cols = m2.nr_cols();
+    Matrix newMatrix(rows, cols);
+
+
+
+    return newMatrix; // to be completed
 }
 
 #endif
