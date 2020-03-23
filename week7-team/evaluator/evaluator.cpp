@@ -9,7 +9,7 @@ int main()
 {
     try
     {
-        Evaluator<int,0> evaluator;
+        Evaluator<double,0> evaluator;
         std::cout<<evaluator.evaluate(std::cin)<<'\n';
     }
     catch(std::exception& e)

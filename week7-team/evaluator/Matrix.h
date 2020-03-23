@@ -64,13 +64,17 @@ std::istream &operator>>(std::istream &is, Matrix &matrix)
     matrix.m_data = data;
     matrix.m_cols = matrix.m_data.size() / rows;
 
+    std::cout<<matrix.m_rows;
+    std::cout<<matrix.m_cols;
+
     return is;
 }
 
 /*! Writes Matrix 'matrix' to 'os' stream. */
 std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
 {
-    // os << rows+cols;
+    int rows = matrix.nr_rows();
+    int cols = matrix.nr_cols();
     return os; // to be completed
 }
 
