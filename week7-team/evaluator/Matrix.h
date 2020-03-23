@@ -64,9 +64,6 @@ std::istream &operator>>(std::istream &is, Matrix &matrix)
     matrix.m_data = data;
     matrix.m_cols = matrix.m_data.size() / rows;
 
-    std::cout<<matrix.m_rows;
-    std::cout<<matrix.m_cols;
-
     return is;
 }
 
@@ -75,6 +72,25 @@ std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
 {
     int rows = matrix.nr_rows();
     int cols = matrix.nr_cols();
+    std::vector<double> data = matrix.vec();
+    std::string output = "";
+
+    for (int i = 0; i < data.size(); i++)
+    {
+        output += std::to_string(data[i]);
+
+        if ((i + 1) % cols == 0)
+        {
+            output += "\n";
+        }
+        else
+        {
+            output += ",";
+        }
+    }
+
+    os << output;
+
     return os; // to be completed
 }
 
