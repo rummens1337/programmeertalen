@@ -108,29 +108,11 @@ Matrix operator-(const Matrix &matrix)
 /*! Returns a new Matrix that is the transpose of 'matrix' */
 Matrix transpose(const Matrix &matrix)
 {
-    int counter = 0;
     int rows = matrix.nr_rows();
     int cols = matrix.nr_cols();
     int sizeMatrix = rows * cols;
 
     Matrix newMatrix(cols, rows);
-
-    // for (size_t i = 0; i < rows; ++i)
-    //     for (size_t j = 0; j < cols; ++j)
-    //         newMatrix.vec()[i] = newMatrix.vec()[i * j];
-
-    std::cout<<
-
-    for (size_t i = 0; i < cols; i++)
-    {
-        for (size_t j = 0; j < rows; j++)
-        {
-            newMatrix.vec()[j] = matrix.vec()[counter];
-            counter + cols;
-        }
-
-        counter = i;
-    }
 
     return newMatrix; // to be completed
 }
