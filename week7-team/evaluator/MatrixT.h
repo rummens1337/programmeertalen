@@ -33,42 +33,123 @@ class MatrixT
 template<typename T>
 std::istream& operator>>(std::istream& is,MatrixT<T>& matrix)
 {
-    return is; // to be completed
+    std::vector<double> data;
+    double num_var = 0;
+    int rows = 0;
+    std::string temp;
+    std::string stringMatrix;
+
+    while (getline(is, temp))
+    {
+        temp += ", ";
+        rows++;
+        stringMatrix += temp;
+    }
+
+    std::stringstream ss(stringMatrix);
+    char junko;
+
+    while (ss >> num_var)
+    {
+        ss >> junko;
+
+        data.push_back(num_var);
+    }
+
+    matrix.m_rows = rows;
+    matrix.m_data = data;
+    matrix.m_cols = matrix.m_data.size() / rows;
+
+    return is;
 }
 
 /*! Writes Matrix 'matrix' to 'os' stream. */
 template<typename T>
 std::ostream& operator<<(std::ostream& os,const MatrixT<T>& matrix)
 {
-    return os; // to be completed
+    int rows = matrix.nr_rows();
+    int cols = matrix.nr_cols();
+    std::vector<T> data = matrix.vec();
+    std::string output = "";
+
+    for (int i = 0; i < data.size(); i++)
+    {
+        output += std::to_string(data[i]);
+
+        if ((i + 1) % cols == 0)
+        {
+            output += "\n";
+        }
+        else
+        {
+            output += ",";
+        }
+    }
+
+    os << output;
+
+    return os;
 }
 
 /*! Returns a new Matrix that is the negation of 'matrix'. */
 template<typename T>
 MatrixT<T> operator-(const MatrixT<T>& matrix)
 {
-    return matrix; // to be completed
+    MatrixT <T> newMatrix(matrix.nr_rows(), matrix.nr_cols());
+
+    for (size_t i = 0; i < matrix.vec().size(); ++i)
+        newMatrix.vec()[i] = matrix.vec()[i] * -1;
+
+    return newMatrix;
 }
 
 /*! Returns a new Matrix that is the transpose of 'matrix'. */
 template <typename T>
 MatrixT<T> transpose(const MatrixT<T>& matrix)
 {
-    return matrix; // to be completed
+    int rows = matrix.nr_rows();
+    int cols = matrix.nr_cols();
+    MatrixT<T> newMatrix(cols, rows);
+
+    int c = 0;
+    int count = 0;
+    for (size_t i = 0; i < cols; ++i)
+    {
+        c = 0;
+        for (size_t j = 0; j < rows; ++j)
+        {
+            newMatrix.vec()[count] = matrix.vec()[i + c];
+            c += cols;
+            count += 1;
+        }
+    }
+    
+
+    return newMatrix;
 }
 
 /*! Returns a new Matrix that is equal to 'm1+m2'. */
 template<typename T>
 MatrixT<T> operator+(const MatrixT<T>& m1,const MatrixT<T>& m2)
 {
-    return m1; // to be completed
+    MatrixT<T> newMatrix(m1.nr_rows(), m1.nr_cols());
+
+    for (size_t i = 0; i < m1.vec().size() + 1; i++)
+            newMatrix.vec()[i] = m1.vec()[i] + m2.vec()[i];
+
+    return newMatrix;
 }
 
 /*! Returns a new Matrix that is equal to 'm1-m2'. */
 template<typename T>
 MatrixT<T> operator-(const MatrixT<T>& m1,const MatrixT<T>& m2)
 {
-    return m1; // to be completed
+    MatrixT<T> newMatrix(m1.nr_rows(), m1.nr_cols());
+
+    for (size_t i = 0; i < m1.vec().size() + 1; i++)
+            newMatrix.vec()[i] = m1.vec()[i] - m2.vec()[i];
+
+    return newMatrix;
 }
 
 /*! Returns a new Matrix that is equal to 'm1*m2'. */
