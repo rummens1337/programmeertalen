@@ -70,12 +70,12 @@ std::istream &operator>>(std::istream &is, Matrix &matrix)
 /*! Writes Matrix 'matrix' to 'os' stream. */
 std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
 {
-    int rows = matrix.nr_rows();
     int cols = matrix.nr_cols();
+
     std::vector<double> data = matrix.vec();
     std::string output = "";
 
-    for (int i = 0; i < data.size(); i++)
+    for (unsigned int i = 0; i < data.size(); i++)
     {
         output += std::to_string(data[i]);
 
@@ -91,7 +91,7 @@ std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
 
     os << output;
 
-    return os; // to be completed
+    return os;
 }
 
 /*! Returns a new Matrix that is the negation of 'matrix' */
@@ -99,7 +99,7 @@ Matrix operator-(const Matrix &matrix)
 {
     Matrix newMatrix(matrix.nr_rows(), matrix.nr_cols());
 
-    for (size_t i = 0; i < matrix.vec().size(); ++i)
+    for (unsigned int i = 0; i < matrix.vec().size(); i++)
         newMatrix.vec()[i] = matrix.vec()[i] * -1;
 
     return newMatrix;
@@ -114,10 +114,10 @@ Matrix transpose(const Matrix &matrix)
 
     int c = 0;
     int count = 0;
-    for (size_t i = 0; i < cols; ++i)
+    for (int i = 0; i < cols; i++)
     {
         c = 0;
-        for (size_t j = 0; j < rows; ++j)
+        for (int j = 0; j < rows; j++)
         {
             newMatrix.vec()[count] = matrix.vec()[i + c];
             c += cols;
@@ -134,7 +134,7 @@ Matrix operator+(const Matrix &m1, const Matrix &m2)
 
     Matrix newMatrix(m1.nr_rows(), m1.nr_cols());
 
-    for (size_t i = 0; i < m1.vec().size() + 1; i++)
+    for (unsigned int i = 0; i < m1.vec().size() + 1; i++)
             newMatrix.vec()[i] = m1.vec()[i] + m2.vec()[i];
 
     return newMatrix;
@@ -145,7 +145,7 @@ Matrix operator-(const Matrix &m1, const Matrix &m2)
 {
     Matrix newMatrix(m1.nr_rows(), m1.nr_cols());
 
-    for (size_t i = 0; i < m1.vec().size() + 1; i++)
+    for (unsigned int i = 0; i < m1.vec().size() + 1; i++)
             newMatrix.vec()[i] = m1.vec()[i] - m2.vec()[i];
 
     return newMatrix;
@@ -154,13 +154,44 @@ Matrix operator-(const Matrix &m1, const Matrix &m2)
 /*! Returns a new Matrix that is equal to 'm1*m2'. */
 Matrix operator*(const Matrix &m1, const Matrix &m2)
 {
-    int rows = m1.nr_rows();
-    int cols = m2.nr_cols();
-    Matrix newMatrix(rows, cols);
+    int rows1 = m1.nr_rows();
+    int cols1 = m1.nr_cols();
+    int cols2 = m2.nr_cols();
 
+    int size = rows1 * cols1;
 
+    Matrix matrixTransposed = transpose(m2);
 
-    return newMatrix; // to be completed
+    Matrix newMatrix(rows1, cols2);
+    int newSize = rows1 * cols2;
+    double total = 0;
+    int i = 0;
+    int j = 0;
+    int c = 0;
+
+    while (c < newSize)
+    {
+        total += (m1.vec()[i] * matrixTransposed.vec()[j]);
+
+        i++;
+        j++;
+
+        if (i % cols1 == 0)
+        {
+            newMatrix.vec()[c] = total;
+            total = 0;
+            c++;
+            i -= cols1;
+
+            if (j == size)
+            {
+                i += cols1;
+                j = 0;
+            }
+        }
+    }
+
+    return newMatrix;
 }
 
 #endif
