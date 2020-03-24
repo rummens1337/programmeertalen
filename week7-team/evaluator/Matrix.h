@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <utility>
 #include <numeric>
+#include <math.h>
+#include <iomanip>
 
 #include "evaluator_exception.h"
 #include "evaluator_string_tools.h"
@@ -21,7 +23,8 @@ class Matrix
 public:
     // constructors
     Matrix() : m_rows{0}, m_cols{0} {}
-    Matrix(int rows, int cols) : m_rows{rows}, m_cols{cols}, m_data(rows * cols) {}
+    Matrix(int rows, int cols) : m_rows{rows}, m_cols{cols},
+                                 m_data(rows * cols) {}
 
     std::vector<double> &vec() { return m_data; }
     const std::vector<double> &vec() const { return m_data; }
@@ -29,9 +32,13 @@ public:
     int nr_rows() const { return m_rows; }
     int nr_cols() const { return m_cols; }
     double &operator()(int r, int c) { return m_data[r * m_cols + c]; }
-    const double &operator()(int r, int c) const { return m_data[r * m_cols + c]; }
+    const double &operator()(int r, int c) const
+    {
+        return m_data[r * m_cols + c];
+    }
 
-    friend std::istream &operator>>(std::istream &is, Matrix &matrix); // give operator access to private variables
+    friend std::istream &operator>>(std::istream &is, Matrix &matrix); 
+    // give operator access to private variables
 };
 
 /*! Reads a Matrix from 'is' stream. */
@@ -71,25 +78,24 @@ std::istream &operator>>(std::istream &is, Matrix &matrix)
 std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
 {
     int cols = matrix.nr_cols();
-
     std::vector<double> data = matrix.vec();
-    std::string output = "";
+    
+    os << std::fixed;
+    os << std::setprecision(2);
 
     for (unsigned int i = 0; i < data.size(); i++)
     {
-        output += std::to_string(data[i]);
+        os << data[i];
 
         if ((i + 1) % cols == 0)
         {
-            output += "\n";
+            os << "\n";
         }
         else
         {
-            output += ",";
+            os << ",";
         }
     }
-
-    os << output;
 
     return os;
 }
@@ -119,7 +125,8 @@ Matrix transpose(const Matrix &matrix)
         c = 0;
         for (int j = 0; j < rows; j++)
         {
-            newMatrix.vec()[count] = matrix.vec()[i + c];
+
+            newMatrix.vec()[count] = roundf(matrix.vec()[i + c] * 100 / 100);
             c += cols;
             count += 1;
         }
@@ -135,7 +142,7 @@ Matrix operator+(const Matrix &m1, const Matrix &m2)
     Matrix newMatrix(m1.nr_rows(), m1.nr_cols());
 
     for (unsigned int i = 0; i < m1.vec().size() + 1; i++)
-            newMatrix.vec()[i] = m1.vec()[i] + m2.vec()[i];
+        newMatrix.vec()[i] = m1.vec()[i] + m2.vec()[i];
 
     return newMatrix;
 }
@@ -146,7 +153,7 @@ Matrix operator-(const Matrix &m1, const Matrix &m2)
     Matrix newMatrix(m1.nr_rows(), m1.nr_cols());
 
     for (unsigned int i = 0; i < m1.vec().size() + 1; i++)
-            newMatrix.vec()[i] = m1.vec()[i] - m2.vec()[i];
+        newMatrix.vec()[i] = m1.vec()[i] - m2.vec()[i];
 
     return newMatrix;
 }
