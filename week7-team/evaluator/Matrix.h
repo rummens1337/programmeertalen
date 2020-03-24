@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <utility>
 #include <numeric>
-#include <math.h>
 #include <iomanip>
 
 #include "evaluator_exception.h"
@@ -79,7 +78,7 @@ std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
 {
     int cols = matrix.nr_cols();
     std::vector<double> data = matrix.vec();
-    
+
     os << std::fixed;
     os << std::setprecision(2);
 
@@ -126,7 +125,7 @@ Matrix transpose(const Matrix &matrix)
         for (int j = 0; j < rows; j++)
         {
 
-            newMatrix.vec()[count] = roundf(matrix.vec()[i + c] * 100 / 100);
+            newMatrix.vec()[count] = matrix.vec()[i + c];
             c += cols;
             count += 1;
         }
