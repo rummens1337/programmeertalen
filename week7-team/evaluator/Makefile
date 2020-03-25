@@ -8,6 +8,7 @@ PROGS = $(patsubst %.cpp,%,$(SRCS))
 all: 	$(PROGS)
 		# ./Matrix_operators_test
 		./MatrixT_operators_test
+		./str_operators_test
 
 
 clean:
