@@ -70,20 +70,20 @@ std::ostream &operator<<(std::ostream &os, const Str &str)
 
 std::string operator-(const Str &str)
 {
-    return "(" + "-" + str.getString() + ")";
+    return "(-" + str.getString() + " )";
 }
 
 std::string operator-(const Str &str1, const Str &str2)
 {
-    return "(" + str1.getString() + "-" + str2.getString() + ")";
+    return "(" + str1.getString() + "-" + str2.getString() + " )";
 }
 
 std::string operator+(const Str &str1, const Str &str2)
 {
-    return "(" + str1.getString() + "+" + str2.getString() + ")";
+    return "(" + str1.getString() + "+" + str2.getString() + " )";
 }
 
 std::string operator*(const Str &str1, const Str &str2)
 {
-    return "(" + str1.getString() + "*" + str2.getString() + ")";
+    return "(" + str1.getString() + "*" + str2.getString() + " )";
 }
