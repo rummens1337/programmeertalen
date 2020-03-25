@@ -11,11 +11,12 @@ int main()
     {
 
         stringstream ss;
-        ss<<"1, 2, 3\n";
-        ss<<"4, 5, 6\n";
-        // ss>>matrix;  // operator>>
+        ss<<"1";
+        ss<<"+";
+        ss<<"2";
+        ss << "\n";
 
-        cout<<"matrix:\n"<< 2 <<'\n'; // operator<<
+        cout<<"STR:\n" <<'\n'; // operator<<
     }
     catch(std::exception& e)
     {
