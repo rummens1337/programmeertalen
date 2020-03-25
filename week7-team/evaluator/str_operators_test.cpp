@@ -16,9 +16,10 @@ int main()
         ss<<"+";
         ss<<"2";
         ss>>str;
+        cout << "\n";
         // ss>>matrix;  // operator>>
 
-        cout<<"matrix:\n"<< str <<'\n'; // operator<<
+        // cout<<"matrix:\n"<< str <<'\n'; // operator<<
     }
     catch(std::exception& e)
     {

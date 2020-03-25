@@ -20,6 +20,8 @@ private:
 
 public:
     Str() : m_str{""}{};
+    Str(std::string s) : m_str{s}{};
+
     std::string getString() const { return m_str; }
 
     friend std::istream &operator>>(std::istream &is, Str &str);
@@ -28,8 +30,6 @@ public:
 /*! Reads a Matrix from 'is' stream. */
 std::istream &operator>>(std::istream &is, Str &str)
 {
-    str.m_str = "YOINK";
-    is >> str.m_str;
     std::vector<double> data;
     double num_var = 0;
     std::string temp;
@@ -37,7 +37,7 @@ std::istream &operator>>(std::istream &is, Str &str)
 
     while (getline(is, temp))
     {
-        std::cout << temp;
+        std::cout << "test" << count << temp;
         // temp += ", ";
         // rows++;
         // stringMatrix += temp;
@@ -68,22 +68,26 @@ std::ostream &operator<<(std::ostream &os, const Str &str)
     return os;
 }
 
-std::string operator-(const Str &str)
+Str operator-(const Str &str)
 {
-    return "(" + "-" + str.getString() + ")";
+    Str newStr("(-" + str.getString() + ")");
+    return newStr;
 }
 
-std::string operator-(const Str &str1, const Str &str2)
+Str operator-(const Str &str1, const Str &str2)
 {
-    return "(" + str1.getString() + "-" + str2.getString() + ")";
+    Str newStr("(" + str1.getString() + "-" + str2.getString() + ")");
+    return newStr;
 }
 
-std::string operator+(const Str &str1, const Str &str2)
+Str operator+(const Str &str1, const Str &str2)
 {
-    return "(" + str1.getString() + "+" + str2.getString() + ")";
+    Str newStr("(" + str1.getString() + "+" + str2.getString() + ")");
+    return newStr;
 }
 
-std::string operator*(const Str &str1, const Str &str2)
+Str operator*(const Str &str1, const Str &str2)
 {
-    return "(" + str1.getString() + "*" + str2.getString() + ")";
+    Str newStr("(" + str1.getString() + "*" + str2.getString() + ")");
+    return newStr;
 }
