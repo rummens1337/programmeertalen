@@ -10,11 +10,11 @@ int main()
     try
     {
 
-        MatrixT<double> matrix;
+        MatrixT<int> matrix;
 
         stringstream ss;
-        ss<<"1, 2, 3\n";
-        ss<<"4, 5, 6\n";
+        ss<<"1.1, 2.2, 3.3\n";
+        ss<<"4.4, 5.5, 6.6\n";
         ss>>matrix;  // operator>>
 
         cout<<"matrix:\n"<< matrix <<'\n'; // operator<<
@@ -28,8 +28,8 @@ int main()
         cout<<"matrix-matrix:\n"<< matrix-matrix <<'\n';
 
         cout<<"matrix*transpose(matrix):\n"<< matrix*transpose(matrix) <<'\n';
-        
-    } 
+
+    }
     catch(std::exception& e)
     {
         std::cerr<<"exception caught: "<<e.what()<<'\n';
