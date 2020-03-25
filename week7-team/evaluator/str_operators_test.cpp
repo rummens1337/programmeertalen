@@ -15,10 +15,11 @@ int main()
         ss<<"1";
         ss<<"+";
         ss<<"2";
-        ss>>str;
-        // ss>>matrix;  // operator>>
+        ss << "\n";
+        ss >> str;
+        cout << "\n";
 
-        cout<<"matrix:\n"<< str <<'\n'; // operator<<
+        // cout<<"STR:\n" <<'\n'; // operator<<
     }
     catch(std::exception& e)
     {
