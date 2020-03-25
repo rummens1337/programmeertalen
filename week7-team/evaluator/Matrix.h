@@ -164,8 +164,14 @@ Matrix operator-(const Matrix &m1, const Matrix &m2)
 Matrix operator*(const Matrix &m1, const Matrix &m2)
 {
     int rows1 = m1.nr_rows();
+    int rows2 = m2.nr_rows();
     int cols1 = m1.nr_cols();
     int cols2 = m2.nr_cols();
+
+    if (cols1 != rows2)
+    {
+        throw new Evaluator_exception("Invalid dimensions");
+    }
 
     int size = rows1 * cols1;
 
