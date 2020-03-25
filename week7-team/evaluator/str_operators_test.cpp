@@ -9,14 +9,17 @@ int main()
 {
     try
     {
-
+        Str str;
+        
         stringstream ss;
         ss<<"1";
         ss<<"+";
         ss<<"2";
         ss << "\n";
+        ss >> str;
+        cout << "\n";
 
-        cout<<"STR:\n" <<'\n'; // operator<<
+        // cout<<"STR:\n" <<'\n'; // operator<<
     }
     catch(std::exception& e)
     {

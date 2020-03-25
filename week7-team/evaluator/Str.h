@@ -15,20 +15,21 @@
 
 class Str
 {
-public:
-
-    Str()
-    {
-        
-    }
-        
 private:
     std::string m_str;
+
+public:
+    Str() : m_str{""}{};
+    std::string getString() const { return m_str; }
+
+    friend std::istream &operator>>(std::istream &is, Str &str);
 };
 
 /*! Reads a Matrix from 'is' stream. */
-std::istream &operator>>(std::istream &is, const Str &str)
+std::istream &operator>>(std::istream &is, Str &str)
 {
+    str.m_str = "YOINK";
+    is >> str.m_str;
     std::vector<double> data;
     double num_var = 0;
     int rows = 0;
@@ -57,4 +58,13 @@ std::istream &operator>>(std::istream &is, const Str &str)
     }
 
     return is;
+}
+
+/*! Writes Matrix 'matrix' to 'os' stream. */
+std::ostream &operator<<(std::ostream &os, const Str &str)
+{
+    
+    os << str.getString();
+
+    return os;
 }
