@@ -82,9 +82,6 @@ std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
     int cols = matrix.nr_cols();
     std::vector<double> data = matrix.vec();
 
-    // os << std::fixed;
-    // os << std::setprecision(2);
-
     for (unsigned int i = 0; i < data.size(); i++)
     {
         os << data[i];
