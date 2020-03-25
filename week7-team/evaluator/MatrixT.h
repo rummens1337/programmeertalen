@@ -38,7 +38,7 @@ template <typename T>
 std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
 {
     std::vector<T> data;
-    T num_var = 0;
+    double num_var = 0;
     int rows = 0;
     std::string temp;
     std::string stringMatrix;
@@ -53,21 +53,16 @@ std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
     std::stringstream ss(stringMatrix);
     char junko;
 
-    // is >> std::fixed;
-    // is >> std::setprecision(2);
-
     while (ss >> num_var)
     {
         ss >> junko;
 
-        data.push_back(num_var);
+        data.push_back((T) num_var);
     }
 
     matrix.m_rows = rows;
     matrix.m_data = data;
-    matrix.m_cols = matrix.m_data.size() / rows; // ??
-
-    //std::cout<<"cols"<<matrix.m_cols<<"\n";
+    matrix.m_cols = matrix.m_data.size() / rows;
 
     return is;
 }
