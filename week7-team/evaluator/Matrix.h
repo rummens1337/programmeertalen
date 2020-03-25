@@ -140,7 +140,7 @@ Matrix operator+(const Matrix &m1, const Matrix &m2)
 
     Matrix newMatrix(m1.nr_rows(), m1.nr_cols());
 
-    for (unsigned int i = 0; i < m1.vec().size() + 1; i++)
+    for (unsigned int i = 0; i < m1.vec().size(); i++)
         newMatrix.vec()[i] = m1.vec()[i] + m2.vec()[i];
 
     return newMatrix;
@@ -151,7 +151,7 @@ Matrix operator-(const Matrix &m1, const Matrix &m2)
 {
     Matrix newMatrix(m1.nr_rows(), m1.nr_cols());
 
-    for (unsigned int i = 0; i < m1.vec().size() + 1; i++)
+    for (unsigned int i = 0; i < m1.vec().size(); i++)
         newMatrix.vec()[i] = m1.vec()[i] - m2.vec()[i];
 
     return newMatrix;

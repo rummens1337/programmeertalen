@@ -6,7 +6,9 @@ HEADERS = $(wildcard *.h)
 PROGS = $(patsubst %.cpp,%,$(SRCS))
 
 all: 	$(PROGS)
-		./Matrix_operators_test
+		# ./Matrix_operators_test
+		./MatrixT_operators_test
+
 
 clean:
 	rm -f $(PROGS) ./intermediate_result_*.txt

@@ -17,7 +17,8 @@ class MatrixT
 public:
     // constructors
     MatrixT() : m_rows{0}, m_cols{0} {}
-    MatrixT(int rows, int cols) : m_rows{rows}, m_cols{cols}, m_data(rows * cols) {}
+    MatrixT(int rows, int cols) : m_rows{rows}, m_cols{cols},
+            m_data(rows * cols) {}
 
     std::vector<T> &vec() { return m_data; }
     const std::vector<T> &vec() const { return m_data; }
@@ -36,7 +37,7 @@ public:
 template <typename T>
 std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
 {
-    std::vector<double> data;
+    std::vector<T> data;
     T num_var = 0;
     int rows = 0;
     std::string temp;
@@ -63,8 +64,10 @@ std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
     }
 
     matrix.m_rows = rows;
-    matrix.m_data = data; // gaat hier fout.
-    matrix.m_cols = matrix.m_data.size() / rows;
+    matrix.m_data = data;
+    matrix.m_cols = matrix.m_data.size() / rows; // ??
+
+    //std::cout<<"cols"<<matrix.m_cols<<"\n";
 
     return is;
 }
@@ -140,8 +143,14 @@ MatrixT<T> operator+(const MatrixT<T> &m1, const MatrixT<T> &m2)
 {
     MatrixT<T> newMatrix(m1.nr_rows(), m1.nr_cols());
 
-    for (size_t i = 0; i < m1.vec().size() + 1; i++)
+    for (size_t i = 0; i < m1.vec().size(); i++)
         newMatrix.vec()[i] = m1.vec()[i] + m2.vec()[i];
+
+    // for (size_t i = 0; i < newMatrix.vec().size(); i++)
+    // {
+    //     std::cout<<newMatrix.vec()[i]<<"\n";
+    // }
+
 
     return newMatrix;
 }
@@ -152,7 +161,7 @@ MatrixT<T> operator-(const MatrixT<T> &m1, const MatrixT<T> &m2)
 {
     MatrixT<T> newMatrix(m1.nr_rows(), m1.nr_cols());
 
-    for (size_t i = 0; i < m1.vec().size() + 1; i++)
+    for (size_t i = 0; i < m1.vec().size(); i++)
         newMatrix.vec()[i] = m1.vec()[i] - m2.vec()[i];
 
     return newMatrix;
