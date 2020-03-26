@@ -3,6 +3,7 @@
 using namespace std;
 
 #include "MatrixT.h"
+#include "Str.h"
 
 /*! Creates and calls functions/operators on MatrixT<T> for test purposes */
 int main()
@@ -10,11 +11,11 @@ int main()
     try
     {
 
-        MatrixT<int> matrix;
+        MatrixT<Str> matrix;
 
         stringstream ss;
-        ss<<"1.1, 2.2, 3.3\n";
-        ss<<"4.4, 5.5, 6.6\n";
+        ss<<"a, b\n";
+        ss<<"c, d\n";
         ss>>matrix;  // operator>>
 
         cout<<"matrix:\n"<< matrix <<'\n'; // operator<<

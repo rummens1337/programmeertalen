@@ -38,8 +38,7 @@ template <typename T>
 std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
 {
     std::vector<T> data;
-    char char_var; // Toegevoegd.
-    double num_var = 0;
+    T num_var;
     int rows = 0;
     std::string temp;
     std::string stringMatrix;
@@ -54,37 +53,12 @@ std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
     std::stringstream ss(stringMatrix);
     char junk;
 
-    // Toegevoegd/aangepast VV
-
-    ss >> num_var;
-
-    if (ss.fail())
+    while (ss >> num_var)
     {
-        while (ss >> char_var)
-        {
-            ss >> junk;
+        ss >> junk;
 
-            Str str;
-            // doe iets met char_var;
-
-            data.push_back((T) str);
-        }
+        data.push_back(num_var);
     }
-    else
-    {
-        ss >> junk; // overbodig?
-
-        data.push_back((T) num_var);
-
-        while (ss >> num_var)
-        {
-            ss >> junk;
-
-            data.push_back((T) num_var);
-        }
-    }
-
-    // Toegevoegd/aangepast
 
     matrix.m_rows = rows;
     matrix.m_data = data;
@@ -103,15 +77,15 @@ std::ostream &operator<<(std::ostream &os, const MatrixT<T> &matrix)
 
     for (unsigned int i = 0; i < data.size(); i++)
     {
-        output += std::to_string(data[i]);
+        output = output + std::to_string(data[i]); //TODO
 
         if ((i + 1) % cols == 0)
         {
-            output += "\n";
+            output = output + "\n";
         }
         else
         {
-            output += ",";
+            output = output + ",";
         }
     }
 
@@ -125,10 +99,15 @@ template <typename T>
 MatrixT<T> operator-(const MatrixT<T> &matrix)
 {
     MatrixT<T> newMatrix(matrix.nr_rows(), matrix.nr_cols());
+    std::stringstream ss;
+    T negation;
 
     for (size_t i = 0; i < matrix.vec().size(); ++i)
     {
-        newMatrix.vec()[i] = matrix.vec()[i] * -1;
+        ss<<"-1";
+        ss>>negation;
+
+        newMatrix.vec()[i] = matrix.vec()[i] * negation; // *-1
     }
 
     return newMatrix;
@@ -167,12 +146,6 @@ MatrixT<T> operator+(const MatrixT<T> &m1, const MatrixT<T> &m2)
     for (size_t i = 0; i < m1.vec().size(); i++)
         newMatrix.vec()[i] = m1.vec()[i] + m2.vec()[i];
 
-    // for (size_t i = 0; i < newMatrix.vec().size(); i++)
-    // {
-    //     std::cout<<newMatrix.vec()[i]<<"\n";
-    // }
-
-
     return newMatrix;
 }
 
@@ -208,22 +181,33 @@ MatrixT<T> operator*(const MatrixT<T> &m1, const MatrixT<T> &m2)
 
     MatrixT<T> newMatrix(rows1, cols2);
     int newSize = rows1 * cols2;
-    T total = 0;
+
+    T total;
+    T temp; //TODO
+    std::stringstream ss;
+
     int i = 0;
     int j = 0;
     int c = 0;
 
     while (c < newSize)
     {
-        total += (m1.vec()[i] * matrixTransposed.vec()[j]);
+        ss<<(m1.vec()[i] * matrixTransposed.vec()[j]);
 
         i++;
         j++;
 
         if (i % cols1 == 0)
         {
+            ss>>temp;
+            total = temp;
+
+            while (ss>>temp)
+            {
+                total = total + temp;
+            }
+
             newMatrix.vec()[c] = total;
-            total = 0;
             c++;
             i -= cols1;
 
