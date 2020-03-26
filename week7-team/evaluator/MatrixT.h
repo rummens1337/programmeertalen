@@ -38,6 +38,7 @@ template <typename T>
 std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
 {
     std::vector<T> data;
+    char char_var; // Toegevoegd.
     double num_var = 0;
     int rows = 0;
     std::string temp;
@@ -51,14 +52,39 @@ std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
     }
 
     std::stringstream ss(stringMatrix);
-    char junko;
+    char junk;
 
-    while (ss >> num_var)
+    // Toegevoegd/aangepast VV
+
+    ss >> num_var;
+
+    if (ss.fail())
     {
-        ss >> junko;
+        while (ss >> char_var)
+        {
+            ss >> junk;
+
+            Str str;
+            // doe iets met char_var;
+
+            data.push_back((T) str);
+        }
+    }
+    else
+    {
+        ss >> junk; // overbodig?
 
         data.push_back((T) num_var);
+
+        while (ss >> num_var)
+        {
+            ss >> junk;
+
+            data.push_back((T) num_var);
+        }
     }
+
+    // Toegevoegd/aangepast
 
     matrix.m_rows = rows;
     matrix.m_data = data;

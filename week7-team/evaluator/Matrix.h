@@ -57,14 +57,14 @@ std::istream &operator>>(std::istream &is, Matrix &matrix)
     }
 
     std::stringstream ss(stringMatrix);
-    char junko;
+    char junk;
 
     is >> std::fixed;
     is >> std::setprecision(2);
 
     while (ss >> num_var)
     {
-        ss >> junko;
+        ss >> junk;
 
         data.push_back(num_var);
     }
