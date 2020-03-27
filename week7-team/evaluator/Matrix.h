@@ -1,3 +1,10 @@
+/*
+ * Names: Michel Rummens, Thomas Vos
+ * StudentIDs:13108093, 12829501
+ * This program defines a matrix with doubles, and the operations +,-,~,* and
+ * transpose.
+ */
+
 #ifndef MATRIX_INCLUDED
 #define MATRIX_INCLUDED
 
@@ -20,11 +27,12 @@ class Matrix
     std::vector<double> m_data;
 
 public:
-    // constructors
+    /* Constructors for no data, and for a given amount of rows and cols. */
     Matrix() : m_rows{0}, m_cols{0} {}
     Matrix(int rows, int cols) : m_rows{rows}, m_cols{cols},
                                  m_data(rows * cols) {}
 
+    /* Functions below return and/or change data of the class variables. */
     std::vector<double> &vec() { return m_data; }
     const std::vector<double> &vec() const { return m_data; }
 
@@ -37,10 +45,15 @@ public:
     }
 
     friend std::istream &operator>>(std::istream &is, Matrix &matrix);
-    // give operator access to private variables
 };
 
-/*! Reads a Matrix from 'is' stream. */
+/*
+ * Reads a Matrix from 'is' stream.
+ *
+ * @param is Input stream, with a string.
+ * @param matrix An empty matrix.
+ * @return the now empty input stream.
+ */
 std::istream &operator>>(std::istream &is, Matrix &matrix)
 {
     std::vector<double> data;
@@ -48,6 +61,9 @@ std::istream &operator>>(std::istream &is, Matrix &matrix)
     int rows = 0;
     std::string temp;
     std::string stringMatrix;
+
+    /* This reads all input from the istream per line, and constructs it all into
+    one string. Also counts the amount of rows. */
 
     while (getline(is, temp))
     {
@@ -62,12 +78,17 @@ std::istream &operator>>(std::istream &is, Matrix &matrix)
     is >> std::fixed;
     is >> std::setprecision(2);
 
+    /* Code below reads the constructed string for doubles. The doubles are
+    placed in a list, while the comma's are thrown into the var 'junk'. */
+
     while (ss >> num_var)
     {
         ss >> junk;
 
         data.push_back(num_var);
     }
+
+    /* Lastly, the three class variables of the matrix are defined. */
 
     matrix.m_rows = rows;
     matrix.m_data = data;
@@ -76,11 +97,20 @@ std::istream &operator>>(std::istream &is, Matrix &matrix)
     return is;
 }
 
-/*! Writes Matrix 'matrix' to 'os' stream. */
+/*
+ * Writes Matrix 'matrix' to 'os' stream.
+ *
+ * @param os Output stream, empty at first.
+ * @param matrix A matrix, to be put into the output stream.
+ * @return the output stream, with the contents of the matrix as a string.
+ */
 std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
 {
     int cols = matrix.nr_cols();
     std::vector<double> data = matrix.vec();
+
+    /* Loop below Puts every number into the ostream, followed by a comma or
+    a newline (if all the numbers of a row have been added) */
 
     for (unsigned int i = 0; i < data.size(); i++)
     {
@@ -99,7 +129,12 @@ std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
     return os;
 }
 
-/*! Returns a new Matrix that is the negation of 'matrix' */
+/*
+ * Returns a new Matrix that is the negation of 'matrix'.
+ *
+ * @param matrix A matrix, to be negated.
+ * @return the negated matrix.
+ */
 Matrix operator-(const Matrix &matrix)
 {
     Matrix newMatrix(matrix.nr_rows(), matrix.nr_cols());
@@ -110,7 +145,12 @@ Matrix operator-(const Matrix &matrix)
     return newMatrix;
 }
 
-/*! Returns a new Matrix that is the transpose of 'matrix' */
+/*
+ * Returns a new Matrix that is the transpose of 'matrix'.
+ *
+ * @param matrix A matrix, to be transposed.
+ * @return the transposed matrix.
+ */
 Matrix transpose(const Matrix &matrix)
 {
     int rows = matrix.nr_rows();
@@ -119,6 +159,10 @@ Matrix transpose(const Matrix &matrix)
 
     int c = 0;
     int count = 0;
+
+    /* The for-loops below put the numbers in the correct place of the
+    transposed matrix. */
+
     for (int i = 0; i < cols; i++)
     {
         c = 0;
@@ -134,7 +178,12 @@ Matrix transpose(const Matrix &matrix)
     return newMatrix;
 }
 
-/*! Returns a new Matrix that is equal to 'm1+m2'. */
+/*
+ * Returns a new Matrix that is equal to 'm1+m2'.
+ *
+ * @param m1/m2 The two matrices that need to be added.
+ * @return the matrix that is the result of the addition.
+ */
 Matrix operator+(const Matrix &m1, const Matrix &m2)
 {
 
@@ -146,7 +195,12 @@ Matrix operator+(const Matrix &m1, const Matrix &m2)
     return newMatrix;
 }
 
-/*! Returns a new Matrix that is equal to 'm1-m2'. */
+/*
+ * Returns a new Matrix that is equal to 'm1-m2'.
+ *
+ * @param m1/m2 The two matrices that need to be subtracted from each other.
+ * @return the matrix that is the result of the subtraction.
+ */
 Matrix operator-(const Matrix &m1, const Matrix &m2)
 {
     Matrix newMatrix(m1.nr_rows(), m1.nr_cols());
@@ -157,7 +211,12 @@ Matrix operator-(const Matrix &m1, const Matrix &m2)
     return newMatrix;
 }
 
-/*! Returns a new Matrix that is equal to 'm1*m2'. */
+/*
+ * Returns a new Matrix that is equal to 'm1*m2'.
+ *
+ * @param m1/m2 The two matrices that need to be multiplied with each other.
+ * @return the matrix that is the result of the multiplication.
+ */
 Matrix operator*(const Matrix &m1, const Matrix &m2)
 {
     int rows1 = m1.nr_rows();
@@ -180,6 +239,11 @@ Matrix operator*(const Matrix &m1, const Matrix &m2)
     int i = 0;
     int j = 0;
     int c = 0;
+
+    /* The loop below multiplies every number in a row with every number in a
+    column, adding the results in the process. If all numbers in a row have
+    been multiplied with a all numbers in a column, the final answer is put
+    into the new matrix and the loop will continue to fill the next spots. */
 
     while (c < newSize)
     {
