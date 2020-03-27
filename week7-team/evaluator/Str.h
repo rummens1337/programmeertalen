@@ -39,13 +39,6 @@ std::istream &operator>>(std::istream &is, Str &str)
     return is;
 }
 
-/* Overloading bois */
-std::ostream &operator<<(std::ostream &os, const Str &str)
-{
-    os << str.getString();
-    return os;
-}
-
 std::ostream &operator<<(std::ostream &os, const Str &str)
 {
     os << str.getString();

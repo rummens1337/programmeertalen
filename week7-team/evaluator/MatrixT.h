@@ -45,17 +45,21 @@ std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
 
     while (getline(is, temp))
     {
-        temp += ", ";
+        temp += ",";
         rows++;
         stringMatrix += temp;
     }
 
     std::stringstream ss(stringMatrix);
-    char junk;
 
-    while (ss >> num_var)
+    while (getline(ss, temp, ','))
     {
-        ss >> junk;
+        std::stringstream ss2;
+
+        temp.erase(remove(temp.begin(),temp.end(),' '),temp.end());
+
+        ss2<<temp;
+        ss2>>num_var;
 
         data.push_back(num_var);
     }
@@ -74,18 +78,21 @@ std::ostream &operator<<(std::ostream &os, const MatrixT<T> &matrix)
     int cols = matrix.nr_cols();
     std::vector<T> data = matrix.vec();
     std::string output = "";
+    std::string temp;
 
     for (unsigned int i = 0; i < data.size(); i++)
     {
-        output = output + std::to_string(data[i]); //TODO
+        std::stringstream ss;
+        ss<<data[i];
+        ss>>temp;
 
         if ((i + 1) % cols == 0)
         {
-            output = output + "\n";
+            output = output + temp + "\n";
         }
         else
         {
-            output = output + ",";
+            output = output + temp + ",";
         }
     }
 
@@ -99,15 +106,10 @@ template <typename T>
 MatrixT<T> operator-(const MatrixT<T> &matrix)
 {
     MatrixT<T> newMatrix(matrix.nr_rows(), matrix.nr_cols());
-    std::stringstream ss;
-    T negation;
 
     for (size_t i = 0; i < matrix.vec().size(); ++i)
     {
-        ss<<"-1";
-        ss>>negation;
-
-        newMatrix.vec()[i] = matrix.vec()[i] * negation; // *-1
+        newMatrix.vec()[i] = -matrix.vec()[i];
     }
 
     return newMatrix;
@@ -182,9 +184,8 @@ MatrixT<T> operator*(const MatrixT<T> &m1, const MatrixT<T> &m2)
     MatrixT<T> newMatrix(rows1, cols2);
     int newSize = rows1 * cols2;
 
+    std::vector<T> totallist;
     T total;
-    T temp; //TODO
-    std::stringstream ss;
 
     int i = 0;
     int j = 0;
@@ -192,20 +193,24 @@ MatrixT<T> operator*(const MatrixT<T> &m1, const MatrixT<T> &m2)
 
     while (c < newSize)
     {
-        ss<<(m1.vec()[i] * matrixTransposed.vec()[j]);
+        totallist.push_back(m1.vec()[i] * matrixTransposed.vec()[j]);
 
         i++;
         j++;
 
         if (i % cols1 == 0)
         {
-            ss>>temp;
-            total = temp;
-
-            while (ss>>temp)
+            if (totallist.size() > 0)
             {
-                total = total + temp;
+                total = totallist[0];
             }
+
+            for (unsigned int i = 1; i < totallist.size(); i++)
+            {
+                total = total + totallist[i];
+            }
+
+            totallist.clear();
 
             newMatrix.vec()[c] = total;
             c++;
