@@ -56,8 +56,8 @@ std::istream &operator>>(std::istream &is, MatrixT<T> &matrix)
     std::string temp;
     std::string stringMatrix;
 
-    /* This reads all input from the istream per line, and constructs it all into
-    one string. Also counts the amount of rows. */
+    /* This reads all input from the istream per line, and constructs it all
+    into one string. Also counts the amount of rows. */
 
     while (getline(is, temp))
     {
