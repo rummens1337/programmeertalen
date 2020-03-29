@@ -283,13 +283,8 @@ printSudoku = putStrLn . showGrid . sud2grid
 -- sudoku is reassembled with the new variable and is returned.
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku
 extend s (r,c,v) = grid2sud (foldr(\z acc -> if z == r then (init xs ++ [v] ++ ys) : acc
-                   else (grid !! (z-1)) : acc) [] [1..9])
-   where (xs,ys) = splitAt c (sud2grid s !! (r - 1))
-         grid = sud2grid s
+                                             else (grid !! (z-1)) : acc) [] [1..9])
 
-extend :: Sudoku -> (Row,Column,Value) -> Sudoku
-extend s (r,c,v) = grid2sud (foldr(\z acc -> | z == r    = (init xs ++ [v] ++ ys) : acc
-                                             | otherwise = (grid !! (z-1)) : acc) [] [1..9])
    where (xs,ys) = splitAt c (sud2grid s !! (r - 1))
          grid = sud2grid s
 
@@ -354,12 +349,14 @@ constraints :: Sudoku -> [Constraint]
 constraints s = customSort (map (\ x -> (fst x, snd x, freeAtPos s x)) (openPositions s))
 
 -- Solves the sudoku > was not able to finish it in. Progression I've made can be found in comments below.
+solveSudoku :: Sudoku -> Maybe Sudoku
+solveSudoku s
+      | finalnode == () = Maybe (s)
+      | otherwise       = Maybe (fst (finalnode))
 
--- solveSudoku :: Sudoku -> Maybe Sudoku
--- solveSudoku s = Maybe (firstElement (addNodeOrNot s (constraints s)))
+        where finalnode = addNodeOrNot s (constraints s)
 
 -- Adds all values with only one possibility to the sudoku.
-
 addValues :: Sudoku -> Sudoku
 addValues s = foldr (flip extend) s posValues
     where posValues = map (\ c -> (firstElement c, secondElement c, head(thirdElement c))) (takeFirstConstraints s)
@@ -373,11 +370,12 @@ remConstValues s = customSort (foldr remOneValue allConstraints firstConstraints
 -- Removes a value from every constraint in the same row, column or subgrid as the given constraint, and
 -- removes the given constraint itself too.
 remOneValue :: Constraint -> [Constraint] -> [Constraint]
-remOneValue c t = delete c (foldr (\x acc -> if x == c then x : acc
+remOneValue c t = delete c (foldr (\x acc ->
+                  if x == c then x : acc
                   else if firstElement c == firstElement x || secondElement c == secondElement x ||
                   topLeftPoint (firstElement c, secondElement c) ==
-                  topLeftPoint (firstElement x, secondElement x) then
-                  (firstElement x, secondElement x, delete (head(thirdElement x)) (thirdElement x)) : acc
+                  topLeftPoint (firstElement x, secondElement x)
+                  then (firstElement x, secondElement x, delete (head(thirdElement x)) (thirdElement x)) : acc
                   else x : acc) [] t)
 
 -- Takes the first constraints from the list (the ones with only one possibility).
@@ -385,21 +383,32 @@ takeFirstConstraints :: Sudoku -> [Constraint]
 takeFirstConstraints s = takeWhile (\x -> length (thirdElement x) == 1) (constraints s)
 
 -- Adds a node to the tree.
+addNodeOrNot :: Sudoku -> [Constraint] -> Node
+addNodeOrNot oldSudoku oldConstraints
+                  | (null(oldConstraints) && consistent oldSudoku) == False = () -- gebeurt alleen in de solve.
+                  | (null(oldConstraints) && consistent oldSudoku) == True  = (oldSudoku, oldConstraints)
+                  | (length listValues) == 1 = addNodeOrNot newSudoku newConstraints
+                  | (length listValues) >= 2 = solveNode oldSudoku oldConstraints
 
--- addNodeOrNot :: Sudoku -> [Constraint] -> Node
--- addNodeOrNot oldSudoku oldConstraints
---                   | (length newConstraints) == 0 = (newSudoku, newConstraints)
---                   | (foldr (\x acc -> thirdElement x == [] || acc) False newConstraints) == True = (oldSudoku, oldConstraints)
---                   | (length (thirdElement (newConstraints !! 0))) >= 2 = (solveNode oldSudoku)
---                   | (length (thirdElement (newConstraints !! 0))) == 1 = (addNodeOrNot newSudoku newConstraints)
---                   | otherwise = (newSudoku, newConstraints)
---                     where newSudoku = addValues oldSudoku
---                           newConstraints = remConstValues oldSudoku
+                    where newSudoku = addValues oldSudoku
+                          newConstraints = remConstValues oldSudoku
+                          listValues = thirdElement head(oldConstraints)
 
--- -- Solves a node
+-- Solves a node, by calling addNodeOrNot again with one of the values of the first constraint.
+solveNode :: Sudoku -> [Constraint] -> Node
+solveNode s v =
+      | newNode == (_,_)
+      | newNode == () = solveNode s newlistT -- doorgaan naar de volgende value in de lijst.
 
--- solveNode :: Sudoku -> Node
--- solveNode s = foldr (\x acc -> firstElement(addNodeOrNot acc [x])) s (thirdElement ((constraints s) !! 0))
+
+      map (\x -> firstElement(addNodeOrNot s [x])) (thirdElement const)
+
+        where const = head(oldConstraints)
+              headConstraint = (firstElement const, secondElement const, [head(values)] -- addnode aanroepen
+              tailConstraint = ((firstElement const, secondElement const, tail(values)) -- zichzelf aanroepen
+              newListH = [headConstraint] ++ tail(oldConstraints)
+              newlistT = [tailConstraint] ++ tail(oldConstraints)
+              newNode = addNodeOrNot s newListH
 
 -- EXTRA FUNCTIONS
 
