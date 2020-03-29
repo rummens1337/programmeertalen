@@ -351,10 +351,8 @@ constraints s = customSort (map (\ x -> (fst x, snd x, freeAtPos s x)) (openPosi
 -- Solves the sudoku > was not able to finish it in. Progression I've made can be found in comments below.
 solveSudoku :: Sudoku -> Maybe Sudoku
 solveSudoku s
-      | finalnode == () = Maybe (s)
-      | otherwise       = Maybe (fst (finalnode))
-
-        where finalnode = addNodeOrNot s (constraints s)
+            | (addNodeOrNot s (constraints s)) == Nothing = Nothing
+            | otherwise = fst (Just (addNodeOrNot s (constraints s)))
 
 -- Adds all values with only one possibility to the sudoku.
 addValues :: Sudoku -> Sudoku
@@ -383,31 +381,30 @@ takeFirstConstraints :: Sudoku -> [Constraint]
 takeFirstConstraints s = takeWhile (\x -> length (thirdElement x) == 1) (constraints s)
 
 -- Adds a node to the tree.
-addNodeOrNot :: Sudoku -> [Constraint] -> Node
+addNodeOrNot :: Sudoku -> [Constraint] -> Maybe Node
 addNodeOrNot oldSudoku oldConstraints
-                  | (null(oldConstraints) && consistent oldSudoku) == False = () -- gebeurt alleen in de solve.
-                  | (null(oldConstraints) && consistent oldSudoku) == True  = (oldSudoku, oldConstraints)
+                  | (null(oldConstraints) && consistent oldSudoku) == False = Nothing -- gebeurt alleen in de solve.
+                  | (null(oldConstraints) && consistent oldSudoku) == True  = Just (oldSudoku, oldConstraints)
                   | (length listValues) == 1 = addNodeOrNot newSudoku newConstraints
                   | (length listValues) >= 2 = solveNode oldSudoku oldConstraints
 
                     where newSudoku = addValues oldSudoku
                           newConstraints = remConstValues oldSudoku
-                          listValues = thirdElement head(oldConstraints)
+                          listValues = thirdElement (head(oldConstraints))
 
--- Solves a node, by calling addNodeOrNot again with one of the values of the first constraint.
-solveNode :: Sudoku -> [Constraint] -> Node
-solveNode s v =
-      | newNode == (_,_)
-      | newNode == () = solveNode s newlistT -- doorgaan naar de volgende value in de lijst.
+-- Solves a node. Calls addNodeOrNot with a single value from the first constraint, and
+-- recursively calls itself again if that value did not yield a solution. If a solution
+-- is found, it returns the solution.
+solveNode :: Sudoku -> [Constraint] -> Maybe Node
+solveNode s c
+      | newNode == Just (s,c) = Just (s,c)
+      | newNode == Nothing = solveNode s newlistT -- doorgaan naar de volgende value in de lijst.
 
-
-      map (\x -> firstElement(addNodeOrNot s [x])) (thirdElement const)
-
-        where const = head(oldConstraints)
-              headConstraint = (firstElement const, secondElement const, [head(values)] -- addnode aanroepen
-              tailConstraint = ((firstElement const, secondElement const, tail(values)) -- zichzelf aanroepen
-              newListH = [headConstraint] ++ tail(oldConstraints)
-              newlistT = [tailConstraint] ++ tail(oldConstraints)
+        where const = head(c)
+              headConstraint = (firstElement const, secondElement const, [head(values)])
+              tailConstraint = (firstElement const, secondElement const, tail(values))
+              newListH = [headConstraint] ++ tail(c)
+              newlistT = [tailConstraint] ++ tail(c)
               newNode = addNodeOrNot s newListH
 
 -- EXTRA FUNCTIONS
