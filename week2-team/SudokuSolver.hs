@@ -114,15 +114,9 @@ consistent s = foldr(\x acc -> rowValid s x && colValid s x &&
 printNode :: Node -> IO()
 printNode = printSudoku . fst -- helper function.
 
--- solveAndShow :: Grid -> IO() -- helper function.
--- solveAndShow =
---       grid2sud (fst (addNodeOrNot s))
-
 -- Testpurposes
 maybeToSud :: Maybe Sudoku -> Sudoku
-maybeToSud s = case s of
-                  Just s  -> s
-                  Nothing -> testSudoku
+maybeToSud = fromMaybe testSudoku
 
 -- Returns a list of all contraints, which is the tree.
 constraints :: Sudoku -> [Constraint]
@@ -167,14 +161,14 @@ takeFirstConstraints s = takeWhile (\x -> length (thirdElement x) == 1) (constra
 -- node if the first constraint of the list has 2 or more possibilities.
 addNodeOrNot :: Sudoku -> [Constraint] -> Maybe Node
 addNodeOrNot oldSudoku oldConstraints
-                  | (length(oldConstraints) > 0 || consistent oldSudoku) == False = Nothing
-                  | (length(oldConstraints) == 0 && consistent oldSudoku) == True  = Just (oldSudoku, oldConstraints)
-                  | (length listValues) == 1 = addNodeOrNot newSudoku newConstraints
-                  | (length listValues) >= 2 = solveNode oldSudoku oldConstraints
+                  | not (not (null oldConstraints) || consistent oldSudoku) = Nothing
+                  | null oldConstraints && consistent oldSudoku = Just (oldSudoku, oldConstraints)
+                  | length listValues == 1 = addNodeOrNot newSudoku newConstraints
+                  | otherwise                = solveNode oldSudoku oldConstraints
 
                     where newSudoku = addValues oldSudoku
                           newConstraints = remConstValues oldSudoku
-                          listValues = thirdElement (head(oldConstraints))
+                          listValues = thirdElement (head oldConstraints)
 
 -- Solves a node. Calls addNodeOrNot with a single value from the first constraint, and
 -- recursively calls itself again if that value did not yield a solution. If a solution
@@ -184,11 +178,11 @@ solveNode s c = case newNode of
                   Just (s,c) -> Just (s,c)
                   Nothing    -> solveNode s newlistT -- doorgaan naar de volgende value in de lijst.
 
-        where const = head(c)
-              headConstraint = (firstElement const, secondElement const, [head(values)])
-              tailConstraint = (firstElement const, secondElement const, tail(values))
-              newListH = [headConstraint] ++ tail(c)
-              newlistT = [tailConstraint] ++ tail(c)
+        where const = head c
+              headConstraint = (firstElement const, secondElement const, [head values])
+              tailConstraint = (firstElement const, secondElement const, tail values)
+              newListH = headConstraint : tail c
+              newlistT = tailConstraint : tail c
               newNode = addNodeOrNot s newListH
 
 -- EXTRA FUNCTIONS
@@ -236,15 +230,15 @@ thirdElement (_,_,v) = v
 -- A testgrid, used for quickly testing the stage 1 and 2 functions.
 testGrid :: Grid
 testGrid =
-  [ [1,2,3,4,5,6,7,0,9]
-  , [4,5,6,7,8,9,1,2,3]
-  , [7,8,9,1,2,3,4,5,6]
-  , [2,3,1,6,7,4,8,9,5]
-  , [8,7,5,9,1,2,0,6,4]
-  , [6,9,4,5,3,8,2,1,7]
-  , [3,1,7,2,6,5,9,4,8]
-  , [5,4,2,8,9,7,6,3,1]
-  , [9,6,8,3,4,1,5,7,2]
+  [ [1,0,3,0,0,0,0,0,9]
+  , [4,5,6,0,8,9,1,2,3]
+  , [7,8,9,1,2,3,0,5,6]
+  , [2,0,1,6,7,4,8,9,5]
+  , [8,0,5,9,0,2,3,6,4]
+  , [6,0,0,5,3,8,2,0,7]
+  , [3,1,7,0,6,5,9,4,8]
+  , [5,0,2,0,0,7,6,0,1]
+  , [9,0,8,3,4,1,0,7,2]
   ]
 
 -- A testsudoku, used to display the testgrid shown above.
