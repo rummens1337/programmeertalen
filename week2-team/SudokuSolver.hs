@@ -350,9 +350,11 @@ constraints s = customSort (map (\ x -> (fst x, snd x, freeAtPos s x)) (openPosi
 
 -- Solves the sudoku > was not able to finish it in. Progression I've made can be found in comments below.
 solveSudoku :: Sudoku -> Maybe Sudoku
-solveSudoku s
-            | (addNodeOrNot s (constraints s)) == Nothing = Nothing
-            | otherwise = fst (Just (addNodeOrNot s (constraints s)))
+solveSudoku s = case finalNode of
+                  Nothing        -> Nothing
+                  Just finalNode -> Just (fst finalNode)
+
+             where finalNode = addNodeOrNot s (constraints s)
 
 -- Adds all values with only one possibility to the sudoku.
 addValues :: Sudoku -> Sudoku
@@ -396,9 +398,9 @@ addNodeOrNot oldSudoku oldConstraints
 -- recursively calls itself again if that value did not yield a solution. If a solution
 -- is found, it returns the solution.
 solveNode :: Sudoku -> [Constraint] -> Maybe Node
-solveNode s c
-      | newNode == Just (s,c) = Just (s,c)
-      | newNode == Nothing = solveNode s newlistT -- doorgaan naar de volgende value in de lijst.
+solveNode s c = case newNode of
+                  Just (s,c) -> Just (s,c)
+                  Nothing    -> solveNode s newlistT -- doorgaan naar de volgende value in de lijst.
 
         where const = head(c)
               headConstraint = (firstElement const, secondElement const, [head(values)])
