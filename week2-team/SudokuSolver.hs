@@ -1,6 +1,6 @@
 -- Namen: Thomas Vos, Michel Rummens
 -- Studentnummers: 12829501, 13108093
--- This program should solve a sudoku using several functions and a binary tree.
+-- This program solves a sudoku using several functions and a binary tree.
 
 module SudokuSolver where
 
@@ -30,7 +30,11 @@ showRow :: [Value] -> String
 showRow sr = "| " ++ intercalate " | " (map showSubgridRow $ chunksOf 3 sr) ++ " |"
 
 showGrid :: Grid -> String
-showGrid grid = "+-------+-------+-------+\n" ++ intercalate "\n+-------+-------+-------+\n" rows ++ "\n+-------+-------+-------+" where rows = map (intercalate "\n") $ chunksOf 3 $ map showRow grid
+showGrid grid = "+-------+-------+-------+\n" ++
+                intercalate "\n+-------+-------+-------+\n" rows ++
+                "\n+-------+-------+-------+"
+
+            where rows = map (intercalate "\n") $ chunksOf 3 $ map showRow grid
 
 sud2grid :: Sudoku -> Grid
 sud2grid s = [ [ s (r,c) | c <- [1..9] ] | r <- [1..9] ]
@@ -135,7 +139,8 @@ solveSudoku s = case finalNode of
 -- Adds all values with only one possibility to the sudoku.
 addValues :: Sudoku -> Sudoku
 addValues s = foldr (flip extend) s posValues
-    where posValues = map (\c -> (firstElement c, secondElement c, head(thirdElement c))) (takeFirstConstraints s)
+    where posValues = map (\c -> (firstElement c, secondElement c, head(thirdElement c)))
+                     (takeFirstConstraints s)
 
 -- Updates the constraint list (always used after addValues.).
 remConstValues :: Sudoku -> [Constraint]
@@ -143,16 +148,13 @@ remConstValues s = customSort (foldr remOneValue allConstraints firstConstraints
     where firstConstraints = takeFirstConstraints s
           allConstraints = constraints s
 
--- Removes a value from every constraint in the same row, column or subgrid as the given constraint, and
--- removes the given constraint itself too.
+-- Removes a value from every constraint in the same row, column or subgrid as the given
+-- constraint, and removes the given constraint itself too.
 remOneValue :: Constraint -> [Constraint] -> [Constraint]
 remOneValue c t = delete c (foldr (\x acc ->
-                  if x == c then x : acc
-                  else if firstElement c == firstElement x || secondElement c == secondElement x ||
-                  topLeftPoint (firstElement c, secondElement c) ==
-                  topLeftPoint (firstElement x, secondElement x)
-                  then (firstElement x, secondElement x, delete (head(thirdElement x)) (thirdElement x)) : acc
-                  else x : acc) [] t)
+                  if      x == c            then x : acc
+                  else if containsValue x c then getNewConstraint x : acc
+                  else                           x : acc) [] t)
 
 -- Takes the first constraints from the list (the ones with only one possibility).
 takeFirstConstraints :: Sudoku -> [Constraint]
@@ -236,6 +238,19 @@ secondElement (_,y,_) = y
 
 -- Gets the third element of a triple.
 thirdElement (_,_,v) = v
+
+-- Returns true if the given constraints are about a position in the same row, column
+-- or subgrid.
+containsValue :: Constraint -> Constraint -> Bool
+containsValue c1 c2 = firstElement c1 == firstElement c2 ||
+                      secondElement c1 == secondElement c2 ||
+                      topLeftPoint (firstElement c1, secondElement c1) ==
+                      topLeftPoint (firstElement c2, secondElement c2)
+
+-- Returns a new constraint, with a value removed.
+getNewConstraint :: Constraint -> Constraint
+getNewConstraint c = (firstElement c, secondElement c, delete (head(thirdElement c))
+                     (thirdElement c))
 
 -- A testgrid, used for quickly testing the stage 1 and 2 functions.
 testGrid :: Grid
