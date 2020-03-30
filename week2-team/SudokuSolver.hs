@@ -53,12 +53,13 @@ printSudoku = putStrLn . showGrid . sud2grid
 -- Returns the sudoku with one value changed. First picks the row containing the given
 -- coordinates, then splits that row at the given coordinates. The head of the row
 -- (= value at given coordinates) is then replaced with the new value, and lastly the
--- sudoku is reassembled with the new variable and is returned.
-extend :: Sudoku -> (Row,Column,Value) -> Sudoku
-extend s (r,c,v) = grid2sud (foldr(\z acc -> if z == r then (init xs ++ [v] ++ ys) : acc
-                                             else (grid !! (z-1)) : acc) [] [1..9])
+-- sudoku is put back together with the new value/row.
 
-   where (xs,ys) = splitAt c (sud2grid s !! (r - 1))
+extend :: Sudoku -> (Row,Column,Value) -> Sudoku
+extend s (r,c,v) = grid2sud (init x2s ++ [init x1s ++ [v] ++ y1s] ++ y2s)
+
+   where (x1s,y1s) = splitAt c (grid !! (r - 1))
+         (x2s,y2s) = splitAt r grid
          grid = sud2grid s
 
 -- Returns a list of every number available for one specific row.
@@ -114,15 +115,16 @@ consistent s = foldr(\x acc -> rowValid s x && colValid s x &&
 printNode :: Node -> IO()
 printNode = printSudoku . fst -- helper function.
 
--- Testpurposes
+-- Helper function, changes a Maybe sudoku to a regular one so it can be printed.
 maybeToSud :: Maybe Sudoku -> Sudoku
 maybeToSud = fromMaybe testSudoku
 
 -- Returns a list of all contraints, which is the tree.
 constraints :: Sudoku -> [Constraint]
-constraints s = customSort (map (\ x -> (fst x, snd x, freeAtPos s x)) (openPositions s))
+constraints s = customSort (map (\x -> (fst x, snd x, freeAtPos s x)) (openPositions s))
 
--- Solves the sudoku > was not able to finish it in. Progression I've made can be found in comments below.
+-- Solves the sudoku, returns a solved sudoku if a solution has been found,
+-- otherwise nothing.
 solveSudoku :: Sudoku -> Maybe Sudoku
 solveSudoku s = case finalNode of
                   Just finalNode -> Just (fst finalNode)
@@ -133,7 +135,7 @@ solveSudoku s = case finalNode of
 -- Adds all values with only one possibility to the sudoku.
 addValues :: Sudoku -> Sudoku
 addValues s = foldr (flip extend) s posValues
-    where posValues = map (\ c -> (firstElement c, secondElement c, head(thirdElement c))) (takeFirstConstraints s)
+    where posValues = map (\c -> (firstElement c, secondElement c, head(thirdElement c))) (takeFirstConstraints s)
 
 -- Updates the constraint list (always used after addValues.).
 remConstValues :: Sudoku -> [Constraint]
@@ -162,9 +164,10 @@ takeFirstConstraints s = takeWhile (\x -> length (thirdElement x) == 1) (constra
 addNodeOrNot :: Sudoku -> [Constraint] -> Maybe Node
 addNodeOrNot oldSudoku oldConstraints
                   | not (not (null oldConstraints) || consistent oldSudoku) = Nothing
-                  | null oldConstraints && consistent oldSudoku = Just (oldSudoku, oldConstraints)
+                  | null oldConstraints && consistent oldSudoku =
+                    Just (oldSudoku, oldConstraints)
                   | length listValues == 1 = addNodeOrNot newSudoku newConstraints
-                  | otherwise                = solveNode oldSudoku oldConstraints
+                  | otherwise              = solveNode oldSudoku oldConstraints
 
                     where newSudoku = addValues oldSudoku
                           newConstraints = remConstValues oldSudoku
@@ -176,7 +179,7 @@ addNodeOrNot oldSudoku oldConstraints
 solveNode :: Sudoku -> [Constraint] -> Maybe Node
 solveNode s c = case newNode of
                   Just (s,c) -> Just (s,c)
-                  Nothing    -> solveNode s newlistT -- doorgaan naar de volgende value in de lijst.
+                  Nothing    -> solveNode s newlistT
 
         where const = head c
               headConstraint = (firstElement const, secondElement const, [head values])
@@ -185,9 +188,9 @@ solveNode s c = case newNode of
               newlistT = tailConstraint : tail c
               newNode = addNodeOrNot s newListH
 
--- EXTRA FUNCTIONS
+-- EXTRA FUNCTIONS -- The small helper functions can be found here.
 
--- Returns all the indices of the empty spots of a row, and therefore the column numbers.
+-- Returns all the indices of the empty spots of a row -> column numbers.
 openPosColumn :: Sudoku -> Row -> [Value]
 openPosColumn s r = map (+1) (elemIndices 0 (sud2grid s !! (r - 1)))
 
@@ -212,10 +215,12 @@ allPosSubgrid (r,c) = [ (rOther,cOther) | rOther<-y, cOther<-x ]
       where y = [r..r + 2]
             x = [c..c + 2]
 
--- Two functions below sort the constraints based on the amount of possibilities.
-customSort :: [Constraint] -> [Constraint] -- (Row, Column, [Value])
+-- Sorts the constraints based on the amount of possibilities.
+customSort :: [Constraint] -> [Constraint]
 customSort = sortBy sortLT
 
+-- Determines how to sort the list of constraints (based on the amount of
+-- possibilities).
 sortLT (r1, c1, v1) (r2, c2, v2)
   | length v1 < length v2 = LT
   | length v1 > length v2 = GT
@@ -223,8 +228,13 @@ sortLT (r1, c1, v1) (r2, c2, v2)
 
 -- Three functions below get respectively the first, second and third element
 -- of a pair.
+-- Gets the first element of a triple.
 firstElement (x,_,_) = x
+
+-- Gets the second element of a triple.
 secondElement (_,y,_) = y
+
+-- Gets the third element of a triple.
 thirdElement (_,_,v) = v
 
 -- A testgrid, used for quickly testing the stage 1 and 2 functions.
