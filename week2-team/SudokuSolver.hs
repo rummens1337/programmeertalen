@@ -228,8 +228,6 @@ sortLT (r1, c1, v1) (r2, c2, v2)
   | length v1 > length v2 = GT
   | length v1 == length v2 = EQ
 
--- Three functions below get respectively the first, second and third element
--- of a pair.
 -- Gets the first element of a triple.
 firstElement (x,_,_) = x
 
