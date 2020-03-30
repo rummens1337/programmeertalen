@@ -334,17 +334,31 @@ sortLT (r1, c1, v1) (r2, c2, v2)
   | length v1 > length v2 = GT
   | length v1 == length v2 = EQ
 
--- Gets the first element of a triple.
+-- Gets the first element of a tuple.
+--
+-- (x, _, _): a tuple.
+-- Returns: the first element of that tuple.
 firstElement (x, _, _) = x
 
--- Gets the second element of a triple.
+-- Gets the second element of a tuple.
+--
+-- (_, y, _): a tuple.
+-- Returns: the second element of that tuple.
 secondElement (_, y, _) = y
 
--- Gets the third element of a triple.
+-- Gets the third element of a tuple.
+--
+-- (_, _, z): a tuple.
+-- Returns: the third element of that tuple.
 thirdElement (_, _, v) = v
 
 -- Returns true if the given constraints are about a position in the same row,
 -- column or subgrid.
+--
+-- Constraint: constraint to be compared with.
+-- Constraint: constraint from the list of constraints.
+-- Returns: True if they are about a position in the same row, column
+-- or subgrid.
 containsValue :: Constraint -> Constraint -> Bool
 containsValue c1 c2 =
   firstElement c1 == firstElement c2 ||
@@ -353,6 +367,9 @@ containsValue c1 c2 =
   topLeftPoint (firstElement c2, secondElement c2)
 
 -- Returns a new constraint, with a value removed.
+--
+-- Constraint: a constraint from the list.
+-- Returns: a new constraint, with a value deleted.
 getNewConstraint :: Constraint -> Constraint
 getNewConstraint c =
   ( firstElement c
@@ -360,6 +377,8 @@ getNewConstraint c =
   , delete (head (thirdElement c)) (thirdElement c))
 
 -- A testgrid, used for quickly testing the stage 1 and 2 functions.
+--
+-- Returns: the testgrid.
 testGrid :: Grid
 testGrid =
   [ [0,0,3,0,0,0,0,0,9]
@@ -374,5 +393,7 @@ testGrid =
   ]
 
 -- A testsudoku, used to display the testgrid shown above.
+--
+-- Returns: the testgrid, as sudoku.
 testSudoku :: Sudoku
 testSudoku = grid2sud testGrid
