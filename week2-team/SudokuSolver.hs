@@ -12,7 +12,7 @@ positions, values :: [Int]
 positions = [1..9]
 values = [1..9]
 
-blocks :: [[Int]] -- ?
+blocks :: [[Int]]
 blocks = [[1..3], [4..6], [7..9]]
 
 showDgt :: Value -> String
@@ -54,11 +54,10 @@ printSudoku = putStrLn . showGrid . sud2grid
 --
 -- -- -- -- -- -- -- -- -- -- -- --
 
--- Returns the sudoku with one value changed. First picks the row containing the given
--- coordinates, then splits that row at the given coordinates. The head of the row
--- (= value at given coordinates) is then replaced with the new value, and lastly the
--- sudoku is put back together with the new value/row.
-
+-- Returns the sudoku with one value changed. First picks the row containing
+-- the given coordinates, then splits that row at the given coordinates.
+-- The head of the row (= value at given coordinates) is then replaced with
+-- the new value, and lastly the sudoku is put back together with that value.
 extend :: Sudoku -> (Row,Column,Value) -> Sudoku
 extend s (r,c,v) = grid2sud (init x2s ++ [init x1s ++ [v] ++ y1s] ++ y2s)
 
@@ -119,7 +118,8 @@ consistent s = foldr(\x acc -> rowValid s x && colValid s x &&
 printNode :: Node -> IO()
 printNode = printSudoku . fst -- helper function.
 
--- Helper function, changes a Maybe sudoku to a regular one so it can be printed.
+-- Helper function, changes a Maybe sudoku to a regular one
+-- so it can be printed.
 maybeToSud :: Maybe Sudoku -> Sudoku
 maybeToSud = fromMaybe testSudoku
 
@@ -148,21 +148,23 @@ remConstValues s = customSort (foldr remOneValue allConstraints firstConstraints
     where firstConstraints = takeFirstConstraints s
           allConstraints = constraints s
 
--- Removes a value from every constraint in the same row, column or subgrid as the given
--- constraint, and removes the given constraint itself too.
+-- Removes a value from every constraint in the same row, column or subgrid
+-- as the given constraint, and removes the given constraint itself too.
 remOneValue :: Constraint -> [Constraint] -> [Constraint]
 remOneValue c t = delete c (foldr (\x acc ->
                   if      x == c            then x : acc
                   else if containsValue x c then getNewConstraint x : acc
                   else                           x : acc) [] t)
 
--- Takes the first constraints from the list (the ones with only one possibility).
+-- Takes the first constraints from the list (the ones with only one
+-- possibility).
 takeFirstConstraints :: Sudoku -> [Constraint]
 takeFirstConstraints s = takeWhile (\x -> length (thirdElement x) == 1) (constraints s)
 
--- Does 4 things: end the search of a node if no solution has been found, return a
--- solution if one has been found, do constraints with 1 possibility and make a new
--- node if the first constraint of the list has 2 or more possibilities.
+-- Does 4 things: end the search of a node if no solution has been found,
+-- return a solution if one has been found, do constraints with 1 possibility
+-- and make a new node if the first constraint of the list has 2 or more
+-- possibilities.
 addNodeOrNot :: Sudoku -> [Constraint] -> Maybe Node
 addNodeOrNot oldSudoku oldConstraints
                   | not (not (null oldConstraints) || consistent oldSudoku) = Nothing
@@ -175,9 +177,9 @@ addNodeOrNot oldSudoku oldConstraints
                           newConstraints = remConstValues oldSudoku
                           listValues = thirdElement (head oldConstraints)
 
--- Solves a node. Calls addNodeOrNot with a single value from the first constraint, and
--- recursively calls itself again if that value did not yield a solution. If a solution
--- is found, it returns the solution.
+-- Solves a node. Calls addNodeOrNot with a single value from the first
+-- constraint, and recursively calls itself again if that value did not yield
+-- a solution. If a solution is found, it returns the solution.
 solveNode :: Sudoku -> [Constraint] -> Maybe Node
 solveNode s c = case newNode of
                   Just (s,c) -> Just (s,c)
@@ -237,8 +239,8 @@ secondElement (_,y,_) = y
 -- Gets the third element of a triple.
 thirdElement (_,_,v) = v
 
--- Returns true if the given constraints are about a position in the same row, column
--- or subgrid.
+-- Returns true if the given constraints are about a position in the same
+-- row, column or subgrid.
 containsValue :: Constraint -> Constraint -> Bool
 containsValue c1 c2 = firstElement c1 == firstElement c2 ||
                       secondElement c1 == secondElement c2 ||
@@ -253,15 +255,15 @@ getNewConstraint c = (firstElement c, secondElement c, delete (head(thirdElement
 -- A testgrid, used for quickly testing the stage 1 and 2 functions.
 testGrid :: Grid
 testGrid =
-  [ [1,0,3,0,0,0,0,0,9]
-  , [4,5,6,0,8,9,1,2,3]
-  , [7,8,9,1,2,3,0,5,6]
-  , [2,0,1,6,7,4,8,9,5]
+  [ [0,0,3,0,0,0,0,0,9]
+  , [0,5,0,0,8,0,1,0,3]
+  , [0,0,9,0,0,3,0,5,0]
+  , [0,0,1,6,0,4,0,9,0]
   , [8,0,5,9,0,2,3,6,4]
-  , [6,0,0,5,3,8,2,0,7]
-  , [3,1,7,0,6,5,9,4,8]
-  , [5,0,2,0,0,7,6,0,1]
-  , [9,0,8,3,4,1,0,7,2]
+  , [0,0,0,5,0,8,2,0,7]
+  , [3,0,7,0,6,5,9,4,8]
+  , [0,0,2,0,0,7,6,0,1]
+  , [0,0,8,0,0,0,0,0,0]
   ]
 
 -- A testsudoku, used to display the testgrid shown above.
