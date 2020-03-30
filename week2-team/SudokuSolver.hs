@@ -58,7 +58,7 @@ printSudoku = putStrLn . showGrid . sud2grid
 -- is then replaced with the new value, and lastly the sudoku is put back
 -- together with the new value/row.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- (Row, Column, Value): pair containing the row, column and new value.
 -- Returns: the new sudoku.
 extend :: Sudoku -> (Row, Column, Value) -> Sudoku
@@ -70,7 +70,7 @@ extend s (r, c, v) = grid2sud (init x2s ++ [init x1s ++ [v] ++ y1s] ++ y2s)
 
 -- Returns a list of every number available for one specific row.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Row: number of a row.
 -- Returns: list of every number available for that one row
 freeInRow :: Sudoku -> Row -> [Value]
@@ -78,7 +78,7 @@ freeInRow s r = [1 .. 9] \\ (sud2grid s !! (r - 1))
 
 -- Returns a list of every number available for one specific column.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Column: number of a column.
 -- Returns: list of every number available for that one column.
 freeInColumn :: Sudoku -> Column -> [Value]
@@ -86,7 +86,7 @@ freeInColumn s c = [1 .. 9] \\ map (\x -> x !! (c - 1)) (sud2grid s)
 
 -- Returns a list of every number available for one specific subgrid.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- (Row, Column): a pair of coordinates, which are located in a subgrid.
 -- Returns: list of every number available for that one subgrid.
 freeInSubgrid :: Sudoku -> (Row, Column) -> [Value]
@@ -94,7 +94,7 @@ freeInSubgrid s (r, c) = [1 .. 9] \\ getValues s (topLeftPoint (r, c))
 
 -- Returns a list of every number available for one specific position.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- (Row, Column): a pair of coordinates.
 -- Returns: list of every number available for those coordinates.
 freeAtPos :: Sudoku -> (Row, Column) -> [Value]
@@ -104,14 +104,14 @@ freeAtPos s (r, c) =
 
 -- Returns a list of every open position.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Returns: a list of every open position.
 openPositions :: Sudoku -> [(Row, Column)]
 openPositions s = concatMap (\x -> zip [x,x ..] (openPosColumn s x)) [1 .. 9]
 
 -- Returns if a row is valid (no empty spots and no double numbers).
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Row: number of a row.
 -- Returns: True if the row is valid, False if not.
 rowValid :: Sudoku -> Row -> Bool
@@ -119,7 +119,7 @@ rowValid s r = null (freeInRow s r)
 
 -- Returns if a column is valid (no empty spots and no double numbers).
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Column: number of a column.
 -- Returns: True if the column is valid, False if not.
 colValid :: Sudoku -> Column -> Bool
@@ -127,7 +127,7 @@ colValid s c = null (freeInColumn s c)
 
 -- Returns if a subgrid is valid (no empty spots and no double numbers).
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- (Row, Column): a pair of coordinates, which are located in a subgrid.
 -- Returns: True if the subgrid is valid, False if not.
 subgridValid :: Sudoku -> (Row, Column) -> Bool
@@ -135,7 +135,7 @@ subgridValid s (r, c) = null (freeInSubgrid s (r, c))
 
 -- Returns if a sudoku is valid (no empty spots and no double numbers).
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Returns: True if the sudoku is valid, False if not.
 consistent :: Sudoku -> Bool
 consistent s =
@@ -157,7 +157,7 @@ maybeToSud = fromMaybe testSudoku
 
 -- Returns a list of all contraints, which is the tree.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Returns: a sorted list of all constraints of that sudoku.
 constraints :: Sudoku -> [Constraint]
 constraints s =
@@ -178,7 +178,7 @@ solveSudoku s =
 
 -- Adds all values from constraints with only one possibility to the sudoku.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Returns: the sudoku with all the values from those constraints added.
 addValues :: Sudoku -> Sudoku
 addValues s = foldr (flip extend) s posValues
@@ -190,7 +190,7 @@ addValues s = foldr (flip extend) s posValues
 
 -- Updates the constraint list (always used after addValues).
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Returns: the updated constraint list.
 remConstValues :: Sudoku -> [Constraint]
 remConstValues s =
@@ -222,7 +222,7 @@ remOneValue c t =
 -- Takes the first constraints from the list
 -- (the ones with only one possibility).
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Returns: a list of the first constraints of that sudoku.
 takeFirstConstraints :: Sudoku -> [Constraint]
 takeFirstConstraints s =
@@ -233,7 +233,7 @@ takeFirstConstraints s =
 -- and make a new node if the first constraint of the list has 2 or more
 -- possibilities.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- [Constraint]: the constraint list of that sudoku.
 -- Returns: a new node, or nothing.
 addNodeOrNot :: Sudoku -> [Constraint] -> Maybe Node
@@ -252,7 +252,7 @@ addNodeOrNot oldSudoku oldConstraints
 -- constraint, and recursively calls itself again if that value did not yield
 -- a solution. If a solution is found, it returns the solution.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- [Constraint]: the constraint list of that sudoku.
 -- Returns, a new node, or nothing.
 solveNode :: Sudoku -> [Constraint] -> Maybe Node
@@ -272,7 +272,7 @@ solveNode s c =
 
 -- Returns all the indices of the empty spots of a row -> column numbers.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- Row: number of a row.
 -- Returns: all the indices of the empty spots of a row -> column numbers.
 openPosColumn :: Sudoku -> Row -> [Value]
@@ -290,7 +290,7 @@ topLeftPoint (r, c) = (x, y)
 
 -- Returns all values of a subgrid.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- (Row, Column): pair of coordinates in a subgrid.
 -- Returns: all values of a subgrid.
 getValues :: Sudoku -> (Row, Column) -> [Value]
@@ -300,7 +300,7 @@ getValues s (r, c) = map (getValueAtPos s) allPos
 
 -- Returns the value of a certain position.
 --
--- Sudoku: sudoku.
+-- Sudoku: a sudoku on which this function is applied.
 -- (Row, Column): pair of coordinates.
 -- Returns: a value at that position in the Sudoku.
 getValueAtPos :: Sudoku -> (Row, Column) -> Value
